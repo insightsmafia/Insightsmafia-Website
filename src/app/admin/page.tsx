@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from 'react';
 
-type Stats = { totalLeads: number; newLeads: number; totalServices: number; totalPosts: number };
+type Stats = {
+  totalLeads: number;
+  newLeads: number;
+  totalServices: number;
+  totalPosts: number;
+  totalProjects: number;
+  totalTestimonials: number;
+};
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -17,8 +24,10 @@ export default function AdminDashboard() {
   const cards = [
     { label: 'Total leads', value: stats?.totalLeads ?? '—', color: 'var(--purple)' },
     { label: 'New leads', value: stats?.newLeads ?? '—', color: 'var(--coral)' },
-    { label: 'Services published', value: stats?.totalServices ?? '—', color: 'var(--yellow)' },
-    { label: 'Blog posts', value: stats?.totalPosts ?? '—', color: 'var(--purple)' },
+    { label: 'Services', value: stats?.totalServices ?? '—', color: 'var(--yellow)' },
+    { label: 'Projects', value: stats?.totalProjects ?? '—', color: 'var(--coral)' },
+    { label: 'Testimonials', value: stats?.totalTestimonials ?? '—', color: 'var(--purple)' },
+    { label: 'Blog posts', value: stats?.totalPosts ?? '—', color: 'var(--yellow)' },
   ];
 
   return (

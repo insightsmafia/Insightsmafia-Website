@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import Button from '@/components/ui/Button';
 
-export default function ContactSection() {
+export default function ContactSection({ contactEmail }: { contactEmail?: string }) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -31,13 +31,13 @@ export default function ContactSection() {
 
   return (
     <section className="section-pad" id="contact" style={{ background: 'var(--surface)', borderTop: '2px solid var(--ink)' }}>
-      <div className="wrap" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56 }}>
+      <div className="wrap" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 56 }}>
         <div>
           <h2 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, marginBottom: 16 }}>Ready to move faster?</h2>
           <p style={{ color: 'var(--muted)', marginBottom: 32, maxWidth: 400 }}>
             Tell us what you&apos;re building and which of the six disciplines to start with.
           </p>
-          <p style={{ fontWeight: 700 }}>hello@insightsmafia.com</p>
+          {contactEmail && <p style={{ fontWeight: 700 }}>{contactEmail}</p>}
           <p style={{ color: 'var(--muted)', marginTop: 6 }}>Based in India — working with brands everywhere</p>
         </div>
 

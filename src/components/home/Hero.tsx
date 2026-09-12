@@ -26,7 +26,7 @@ export default function Hero() {
         </p>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
           <Button href="#work">See the work</Button>
-          <Button href="#contact" variant="primary">Start a project</Button>
+          <Button href="/lets-create" variant="primary">Let&apos;s Create</Button>
         </div>
       </div>
     </section>

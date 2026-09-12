@@ -1,10 +1,10 @@
 :root {
   --bg: #faf7f2;
   --surface: #ffffff;
-  --ink: #16121e;
+  --ink: #000315;
   --muted: #6b6275;
-  --purple: #7b3ff2;
-  --purple-deep: #5b21b6;
+  --purple: #a244d0;
+  --purple-deep: #7e35a3;
   --coral: #ff5a4e;
   --yellow: #ffc53d;
   --line: #16121e;
@@ -21,6 +21,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h, 76px);
 }
 
 body {
@@ -122,6 +123,121 @@ h1, h2, h3 {
   border-radius: var(--radius);
 }
 
+.svc-card {
+  transform: rotate(var(--tilt));
+  box-shadow: 6px 6px 0 var(--accent);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.svc-card:hover {
+  transform: translate(-2px, -2px) rotate(0deg);
+  box-shadow: 8px 8px 0 var(--accent);
+}
+
+.svc-card:active {
+  transform: translate(3px, 3px) rotate(0deg);
+  box-shadow: 1px 1px 0 var(--accent);
+}
+
+/* ---- header nav: hamburger below 860px so the bar never overflows ---- */
+.nav-links {
+  display: flex;
+  gap: 28px;
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--ink);
+  margin: 0 auto;
+}
+
+.mobile-menu {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .nav-links,
+  .nav-cta {
+    display: none;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  .mobile-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 8px 32px 24px;
+    border-top: 2px solid var(--ink);
+    background: var(--bg);
+  }
+}
+
+@media (max-width: 640px) {
+  .mobile-menu {
+    padding: 8px 20px 20px;
+  }
+}
+
+/* ---- logo: SF Pro semibold wordmark, flat, no border/shadow ---- */
+.logo {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1;
+  user-select: none;
+}
+
+.logo-word {
+  display: inline-flex;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', var(--font-display), 'Outfit', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.logo-md .logo-word { font-size: 30px; }
+.logo-sm .logo-word { font-size: 22px; }
+
+.logo-insights {
+  color: var(--purple);
+}
+
+.logo-mafia {
+  color: var(--ink);
+}
+
+.logo-tagline {
+  font-family: var(--font-body), 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  margin-left: 2px;
+}
+
+.logo-sm .logo-tagline {
+  font-size: 9.5px;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(14px);
@@ -130,6 +246,139 @@ h1, h2, h3 {
 .reveal.is-in {
   opacity: 1;
   transform: translateY(0);
+}
+
+.footer-social-link:hover {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* ---- split-screen layout (testimonials / faq) ---- */
+.split-screen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  position: relative;
+}
+
+.split-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: var(--ink);
+  transform: translateX(-1px);
+}
+
+@media (max-width: 860px) {
+  .split-screen {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .split-screen::before {
+    display: none;
+  }
+}
+
+/* ---- faq accordion: smooth grid-rows slide, no JS height measuring ---- */
+.faq-item {
+  padding: 0;
+  overflow: hidden;
+}
+
+.faq-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  font: inherit;
+  font-weight: 700;
+  font-size: 15.5px;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 16px 20px;
+}
+
+.faq-icon {
+  color: var(--purple);
+  font-weight: 800;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.faq-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.faq-panel.open {
+  grid-template-rows: 1fr;
+}
+
+.faq-panel-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.faq-panel-inner p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 20px 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-panel {
+    transition: none;
+  }
+}
+
+/* ---- clients marquee: slow, seamless, pauses on hover ---- */
+.marquee-mask {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  width: max-content;
+  animation: marquee-scroll 32s linear infinite;
+}
+
+.marquee-mask:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-item {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,13 +1,9 @@
-// Local dev uses SQLite so the project runs with zero external setup.
-// For production, switch provider to "postgresql" and point DATABASE_URL
-// at Neon / Supabase — the models below don't need to change.
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -36,6 +32,7 @@ model Service {
   published   Boolean  @default(true)
   seoTitle       String?
   seoDescription String?
+  projects       Project[]
 }
 
 model ProjectCategory {
@@ -53,6 +50,8 @@ model Project {
   client        String?
   categoryId    String?
   category      ProjectCategory? @relation(fields: [categoryId], references: [id])
+  serviceId     String?
+  service       Service?         @relation(fields: [serviceId], references: [id])
   year          Int?
   coverImage    String?
   gallery       String           @default("[]")
@@ -108,6 +107,15 @@ model Faq {
   question  String
   answer    String
   category  String?
+  order     Int     @default(0)
+  published Boolean @default(true)
+}
+
+model ClientLogo {
+  id        String  @id @default(cuid())
+  name      String
+  logoUrl   String?
+  linkUrl   String?
   order     Int     @default(0)
   published Boolean @default(true)
 }

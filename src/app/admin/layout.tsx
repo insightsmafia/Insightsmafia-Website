@@ -7,6 +7,13 @@ const nav = [
   { href: '/admin', label: 'Dashboard' },
   { href: '/admin/leads', label: 'Leads' },
   { href: '/admin/services', label: 'Services' },
+  { href: '/admin/projects', label: 'Work / Projects' },
+  { href: '/admin/testimonials', label: 'Testimonials' },
+  { href: '/admin/team', label: 'Team' },
+  { href: '/admin/faq', label: 'FAQs' },
+  { href: '/admin/clients', label: 'Client logos' },
+  { href: '/admin/seo', label: 'SEO' },
+  { href: '/admin/settings', label: 'Settings' },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -6,12 +6,14 @@ export async function GET(req: NextRequest) {
   const admin = requireAdmin(req);
   if (!admin) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
 
-  const [totalLeads, newLeads, totalServices, totalPosts] = await Promise.all([
+  const [totalLeads, newLeads, totalServices, totalPosts, totalProjects, totalTestimonials] = await Promise.all([
     prisma.lead.count(),
     prisma.lead.count({ where: { status: 'new' } }),
     prisma.service.count(),
     prisma.post.count(),
+    prisma.project.count(),
+    prisma.testimonial.count(),
   ]);
 
-  return NextResponse.json({ ok: true, totalLeads, newLeads, totalServices, totalPosts });
+  return NextResponse.json({ ok: true, totalLeads, newLeads, totalServices, totalPosts, totalProjects, totalTestimonials });
 }

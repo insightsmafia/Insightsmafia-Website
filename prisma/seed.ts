@@ -48,6 +48,39 @@ const services = [
   },
 ];
 
+const faqs = [
+  {
+    question: 'What does Insights Mafia actually do?',
+    answer: 'We run content creation, content planning, social media management, web development, performance marketing and branding as one team — no hand-offs between separate agencies.',
+    order: 1,
+  },
+  {
+    question: 'How fast can we start?',
+    answer: 'Most projects kick off within a week of the discovery call — we send a plan to approve before any shoot, build or campaign begins.',
+    order: 2,
+  },
+  {
+    question: 'Do you work with early-stage brands or only established ones?',
+    answer: 'Both. We tailor scope and pricing to where you are — a first brand film and a full always-on retainer get the same rigor.',
+    order: 3,
+  },
+  {
+    question: 'How do you price projects?',
+    answer: 'Project-based for one-off shoots, sites or campaigns; retainer-based for ongoing social, content or performance marketing work. You get a fixed quote before anything starts.',
+    order: 4,
+  },
+  {
+    question: 'Where are you based, and do you work with brands outside India?',
+    answer: 'We’re based in India and work with brands everywhere — shoots and on-site work are scheduled around your location, everything else runs remotely.',
+    order: 5,
+  },
+  {
+    question: 'How do we get in touch?',
+    answer: 'Use the Let’s Create page to send us what you’re building — we reply within one business day.',
+    order: 6,
+  },
+];
+
 async function main() {
   for (const s of services) {
     await prisma.service.upsert({
@@ -55,6 +88,11 @@ async function main() {
       update: {},
       create: s,
     });
+  }
+
+  const existingFaqCount = await prisma.faq.count();
+  if (existingFaqCount === 0) {
+    await prisma.faq.createMany({ data: faqs });
   }
 
   const existingSettings = await prisma.content.findUnique({ where: { key: 'settings' } });
@@ -66,7 +104,10 @@ async function main() {
           siteName: 'Insights Mafia',
           tagline: 'You Dream. We Create!',
           logo: '/logo.jpg',
-          contactEmail: 'hello@insightsmafia.com',
+          contactEmail: 'connect@insightsmafia.com',
+          homeTitle: 'Insights Mafia — You Dream. We Create.',
+          homeDescription:
+            'Full-service creative and growth agency — content creation, social media management, web development, performance marketing, and branding.',
         }),
       },
     });

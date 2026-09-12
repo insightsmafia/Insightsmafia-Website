@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Outfit, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
+import { getSettings } from '@/lib/settings';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -20,10 +21,30 @@ export const metadata: Metadata = {
     'Full-service creative and growth agency — content creation, social media management, web development, performance marketing, and branding.',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSettings();
+  const base = (settings.siteUrl || 'https://insightsmafia.com').replace(/\/$/, '');
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: settings.siteName,
+    url: base,
+    logo: `${base}/logo.jpg`,
+    email: settings.contactEmail,
+    ...(settings.phone && { telephone: settings.phone }),
+    ...(settings.address && { address: settings.address }),
+  };
+
+  const sameAs = Object.values(settings.social ?? {}).filter(Boolean);
+  if (sameAs.length > 0) (jsonLd as Record<string, unknown>).sameAs = sameAs;
+
   return (
     <html lang="en" className={`${outfit.variable} ${jakarta.variable}`}>
-      <body>{children}</body>
+      <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        {children}
+      </body>
     </html>
   );
 }
