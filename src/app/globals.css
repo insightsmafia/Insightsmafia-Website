@@ -255,6 +255,24 @@ h1, h2, h3 {
   transform: translateY(-2px);
 }
 
+/* ---- seo request-indexing rows: dim siblings on hover so it's clear which row a click targets ---- */
+.seo-row {
+  padding: 6px 8px;
+  margin: 0 -8px;
+  border-radius: 10px;
+  opacity: 1;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.seo-rows:hover .seo-row {
+  opacity: 0.4;
+}
+
+.seo-rows .seo-row:hover {
+  opacity: 1;
+  background: var(--bg);
+}
+
 /* ---- split-screen layout (testimonials / faq) ---- */
 .split-screen {
   display: grid;

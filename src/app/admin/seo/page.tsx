@@ -122,9 +122,9 @@ export default function AdminSeoPage() {
               Once there, press <kbd style={kbdStyle}>⌘V</kbd> in the search bar at the top, hit Enter, then click{' '}
               <strong>Request Indexing</strong>.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="seo-rows" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {keyPages.map((p) => (
-                <div key={p.path} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <div key={p.path} className="seo-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 14 }}>{p.label}</div>
                     <div style={{ color: 'var(--muted)', fontSize: 12.5 }}>{p.path}</div>
