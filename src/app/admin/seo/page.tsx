@@ -18,6 +18,7 @@ export default function AdminSeoPage() {
   const [rankError, setRankError] = useState('');
   const [pages, setPages] = useState<PageRow[] | null>(null);
   const [services, setServices] = useState<Service[]>([]);
+  const [copiedPath, setCopiedPath] = useState('');
 
   useEffect(() => {
     fetch('/api/admin/seo/status', { headers: authHeaders() })
@@ -48,10 +49,14 @@ export default function AdminSeoPage() {
     ...services.map((s) => ({ label: s.title, path: `/services/${s.slug}` })),
   ];
 
-  function inspectUrl(path: string) {
-    const property = status?.searchConsoleProperty || base;
-    const pageUrl = `${base}${path}`;
-    return `https://search.google.com/search-console/inspect?resource_id=${encodeURIComponent(property)}&id=${encodeURIComponent(pageUrl)}`;
+  const searchConsoleDashboardUrl = status?.searchConsoleProperty
+    ? `https://search.google.com/search-console?resource_id=${encodeURIComponent(status.searchConsoleProperty)}`
+    : 'https://search.google.com/search-console';
+
+  async function copyPageUrl(path: string) {
+    await navigator.clipboard.writeText(`${base}${path}`);
+    setCopiedPath(path);
+    setTimeout(() => setCopiedPath(''), 1800);
   }
 
   return (
@@ -110,8 +115,12 @@ export default function AdminSeoPage() {
           <div className="card-flat" style={{ padding: 20, marginBottom: 20 }}>
             <h2 style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>Request indexing</h2>
             <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 14 }}>
-              Opens Google&apos;s URL Inspection tool for that page, pre-filled — click <strong>Request indexing</strong> there. Google&apos;s
-              automated indexing API doesn&apos;t accept normal pages, so this manual step is the reliable path.
+              Google doesn&apos;t support linking straight into an inspection for a specific page, and its automated indexing API rejects
+              normal pages by policy. The reliable way: copy a page&apos;s URL below, then{' '}
+              <a href={searchConsoleDashboardUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--purple)', fontWeight: 700 }}>
+                open Search Console
+              </a>
+              , paste it into the search bar at the top, and click <strong>Request Indexing</strong> there.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {keyPages.map((p) => (
@@ -120,15 +129,14 @@ export default function AdminSeoPage() {
                     <div style={{ fontWeight: 600, fontSize: 14 }}>{p.label}</div>
                     <div style={{ color: 'var(--muted)', fontSize: 12.5 }}>{p.path}</div>
                   </div>
-                  <a
-                    href={inspectUrl(p.path)}
-                    target="_blank"
-                    rel="noreferrer"
+                  <button
                     className="btn"
-                    style={{ padding: '8px 14px', fontSize: 13, flexShrink: 0, textDecoration: 'none', opacity: status.siteUrl ? 1 : 0.5, pointerEvents: status.siteUrl ? 'auto' : 'none' }}
+                    style={{ padding: '8px 14px', fontSize: 13, flexShrink: 0 }}
+                    onClick={() => copyPageUrl(p.path)}
+                    disabled={!status.siteUrl}
                   >
-                    Inspect &amp; request →
-                  </a>
+                    {copiedPath === p.path ? 'Copied ✓' : 'Copy URL'}
+                  </button>
                 </div>
               ))}
             </div>
