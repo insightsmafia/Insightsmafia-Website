@@ -40,7 +40,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
       <aside style={{ width: 220, borderRight: '2px solid var(--ink)', padding: '28px 20px', background: 'var(--surface)' }}>
-        <p style={{ fontWeight: 800, marginBottom: 28 }}>Insights Mafia</p>
+        <p style={{ fontWeight: 800, marginBottom: 14 }}>Insights Mafia</p>
+        <a
+          href="/"
+          target="_blank"
+          rel="noreferrer"
+          className="btn"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 12px', fontSize: 13, marginBottom: 20, textDecoration: 'none' }}
+        >
+          Visit site
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M7 17 17 7M9 7h8v8" />
+          </svg>
+        </a>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {nav.map((n) => (
             <a
