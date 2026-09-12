@@ -1,0 +1,34 @@
+import Button from '@/components/ui/Button';
+import FloatingBadges from './FloatingBadges';
+
+export default function Hero() {
+  return (
+    <section
+      className="section-pad"
+      style={{ position: 'relative', overflow: 'hidden', paddingTop: 90, minHeight: '92vh', display: 'flex', alignItems: 'center' }}
+    >
+      {/* background blobs */}
+      <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: 480, height: 480, borderRadius: '50%', background: 'var(--yellow)', opacity: 0.35, filter: 'blur(2px)' }} />
+      <div style={{ position: 'absolute', bottom: '-15%', left: '-10%', width: 420, height: 420, borderRadius: '50%', background: 'var(--purple)', opacity: 0.15 }} />
+
+      <FloatingBadges />
+
+      <div className="wrap" style={{ position: 'relative', zIndex: 2, maxWidth: 680 }}>
+        <p style={{ display: 'inline-block', background: 'var(--yellow)', border: '2px solid var(--ink)', borderRadius: 100, padding: '6px 16px', fontWeight: 700, fontSize: 13.5, transform: 'rotate(-2deg)', marginBottom: 28 }}>
+          You Dream. We Create!
+        </p>
+        <h1 style={{ fontWeight: 800, fontSize: 'clamp(38px,6vw,68px)', lineHeight: 1.05, marginBottom: 24 }}>
+          <span style={{ display: 'block' }}>Every brand needs</span>
+          <span style={{ display: 'block', color: 'var(--purple)' }}>a crew that delivers.</span>
+        </h1>
+        <p style={{ fontSize: 18, lineHeight: 1.6, color: 'var(--muted)', maxWidth: 480, marginBottom: 36 }}>
+          Insights Mafia is a full-service creative and growth agency — film, social, design, code and paid media, run by one tight team.
+        </p>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          <Button href="#work">See the work</Button>
+          <Button href="#contact" variant="primary">Start a project</Button>
+        </div>
+      </div>
+    </section>
+  );
+}

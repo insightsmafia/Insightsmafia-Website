@@ -1,0 +1,138 @@
+:root {
+  --bg: #faf7f2;
+  --surface: #ffffff;
+  --ink: #16121e;
+  --muted: #6b6275;
+  --purple: #7b3ff2;
+  --purple-deep: #5b21b6;
+  --coral: #ff5a4e;
+  --yellow: #ffc53d;
+  --line: #16121e;
+  --shadow-purple: 6px 6px 0 var(--purple);
+  --shadow-coral: 6px 6px 0 var(--coral);
+  --shadow-yellow: 6px 6px 0 var(--yellow);
+  --shadow-ink: 6px 6px 0 var(--ink);
+  --radius: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body), 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display), 'Outfit', sans-serif;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+@media (max-width: 640px) {
+  .wrap {
+    padding: 0 20px;
+  }
+}
+
+.section-pad {
+  padding: 100px 0;
+  position: relative;
+}
+
+@media (max-width: 640px) {
+  .section-pad {
+    padding: 64px 0;
+  }
+}
+
+/* ---- buttons: chunky, outlined, hard offset shadow, press-down on click ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 2px solid var(--ink);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+.btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.btn-primary {
+  background: var(--purple);
+  color: #fff;
+  box-shadow: var(--shadow-ink);
+}
+
+.btn-coral {
+  background: var(--coral);
+  color: #fff;
+}
+
+/* ---- reusable tilt utility ---- */
+.tilt-1 { transform: rotate(-2deg); }
+.tilt-2 { transform: rotate(1.5deg); }
+.tilt-3 { transform: rotate(-1deg); }
+.tilt-4 { transform: rotate(2.5deg); }
+
+.card-flat {
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

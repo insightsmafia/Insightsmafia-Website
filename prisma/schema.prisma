@@ -1,0 +1,168 @@
+// Local dev uses SQLite so the project runs with zero external setup.
+// For production, switch provider to "postgresql" and point DATABASE_URL
+// at Neon / Supabase — the models below don't need to change.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Page {
+  slug            String   @id
+  title           String
+  blocks          String   @default("[]")
+  seoTitle        String?
+  seoDescription  String?
+  ogImage         String?
+  noindex         Boolean  @default(false)
+  published       Boolean  @default(true)
+  updatedAt       DateTime @updatedAt
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  icon        String?
+  coverImage  String?
+  body        String   @default("[]")
+  order       Int      @default(0)
+  featured    Boolean  @default(false)
+  published   Boolean  @default(true)
+  seoTitle       String?
+  seoDescription String?
+}
+
+model ProjectCategory {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  label    String
+  order    Int       @default(0)
+  projects Project[]
+}
+
+model Project {
+  id            String           @id @default(cuid())
+  slug          String           @unique
+  title         String
+  client        String?
+  categoryId    String?
+  category      ProjectCategory? @relation(fields: [categoryId], references: [id])
+  year          Int?
+  coverImage    String?
+  gallery       String           @default("[]")
+  summary       String?
+  body          String           @default("[]")
+  metrics       String           @default("[]")
+  order         Int              @default(0)
+  featured      Boolean          @default(false)
+  published     Boolean          @default(false)
+  seoTitle       String?
+  seoDescription String?
+}
+
+model TeamMember {
+  id        String  @id @default(cuid())
+  name      String
+  role      String
+  bio       String?
+  photo     String?
+  socials   String  @default("{}")
+  order     Int     @default(0)
+  published Boolean @default(true)
+}
+
+model Testimonial {
+  id          String  @id @default(cuid())
+  author      String
+  roleCompany String?
+  quote       String
+  photo       String?
+  rating      Int?
+  order       Int     @default(0)
+  published   Boolean @default(true)
+}
+
+model Post {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  title          String
+  excerpt        String?
+  coverImage     String?
+  body           String    @default("[]")
+  authorName     String?
+  tags           String    @default("[]")
+  publishedAt    DateTime?
+  published      Boolean   @default(false)
+  seoTitle       String?
+  seoDescription String?
+}
+
+model Faq {
+  id        String  @id @default(cuid())
+  question  String
+  answer    String
+  category  String?
+  order     Int     @default(0)
+  published Boolean @default(true)
+}
+
+model Lead {
+  id              String      @id @default(cuid())
+  name            String
+  email           String
+  phone           String?
+  company         String?
+  message         String
+  sourcePath      String?
+  serviceInterest String?
+  budget          String?
+  status          String      @default("new") // new|contacted|qualified|won|lost
+  notes           String?
+  createdAt       DateTime    @default(now())
+  events          LeadEvent[]
+}
+
+model LeadEvent {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  type      String // status|note
+  from      String?
+  to        String?
+  message   String?
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  status    String   @default("subscribed")
+  source    String?
+  createdAt DateTime @default(now())
+}
+
+model Redirect {
+  id        String  @id @default(cuid())
+  from      String  @unique
+  to        String
+  permanent Boolean @default(true)
+}
+
+model Content {
+  key  String @id // settings|navigation|footer
+  data String @default("{}")
+}
+
+model AdminUser {
+  id           String @id @default(cuid())
+  email        String @unique
+  passwordHash String
+  name         String
+  role         String @default("owner") // owner|editor
+}

@@ -1,0 +1,69 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+
+const nav = [
+  { href: '/admin', label: 'Dashboard' },
+  { href: '/admin/leads', label: 'Leads' },
+  { href: '/admin/services', label: 'Services' },
+];
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (pathname === '/admin/login') {
+      setReady(true);
+      return;
+    }
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      router.replace('/admin/login');
+    } else {
+      setReady(true);
+    }
+  }, [pathname, router]);
+
+  if (pathname === '/admin/login') return <>{children}</>;
+  if (!ready) return null;
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+      <aside style={{ width: 220, borderRight: '2px solid var(--ink)', padding: '28px 20px', background: 'var(--surface)' }}>
+        <p style={{ fontWeight: 800, marginBottom: 28 }}>Insights Mafia</p>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {nav.map((n) => (
+            <a
+              key={n.href}
+              href={n.href}
+              style={{
+                padding: '10px 12px',
+                borderRadius: 8,
+                fontWeight: 600,
+                fontSize: 14.5,
+                textDecoration: 'none',
+                background: pathname === n.href ? 'var(--purple)' : 'transparent',
+                color: pathname === n.href ? '#fff' : 'var(--ink)',
+              }}
+            >
+              {n.label}
+            </a>
+          ))}
+        </nav>
+        <button
+          onClick={() => {
+            localStorage.removeItem('admin_token');
+            router.push('/admin/login');
+          }}
+          style={{ marginTop: 28, fontSize: 13, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          Log out
+        </button>
+      </aside>
+      <main style={{ flex: 1, padding: 36 }}>{children}</main>
+    </div>
+  );
+}

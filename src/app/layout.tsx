@@ -1,0 +1,29 @@
+import type { Metadata } from 'next';
+import { Outfit, Plus_Jakarta_Sans } from 'next/font/google';
+import './globals.css';
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['500', '600', '700', '800'],
+  variable: '--font-display',
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-body',
+});
+
+export const metadata: Metadata = {
+  title: 'Insights Mafia — You Dream. We Create.',
+  description:
+    'Full-service creative and growth agency — content creation, social media management, web development, performance marketing, and branding.',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${outfit.variable} ${jakarta.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}
