@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import Logo from '@/components/ui/Logo';
 
 const nav = [
   { href: '/admin', label: 'Dashboard' },
@@ -40,7 +41,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
       <aside style={{ width: 220, borderRight: '2px solid var(--ink)', padding: '28px 20px', background: 'var(--surface)' }}>
-        <p style={{ fontWeight: 800, marginBottom: 14 }}>Insights Mafia</p>
+        <div style={{ marginBottom: 14 }}>
+          <Logo size="sm" showTagline={false} />
+        </div>
         <a
           href="/"
           target="_blank"
