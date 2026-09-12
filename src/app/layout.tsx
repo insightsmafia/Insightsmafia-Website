@@ -15,6 +15,11 @@ const jakarta = Plus_Jakarta_Sans({
   variable: '--font-body',
 });
 
+// Every page reads live content from the admin-editable database (services,
+// testimonials, settings, etc.) — force dynamic rendering site-wide so admin
+// changes show up immediately instead of being frozen at build time.
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Insights Mafia — You Dream. We Create.',
   description:

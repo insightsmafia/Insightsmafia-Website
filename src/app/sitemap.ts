@@ -2,6 +2,8 @@ import type { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db';
 import { getSettings } from '@/lib/settings';
 
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const settings = await getSettings();
   const base = (settings.siteUrl || 'https://insightsmafia.com').replace(/\/$/, '');
