@@ -12,5 +12,6 @@ export async function GET(req: NextRequest) {
     ok: true,
     configured: isGoogleConfigured(),
     siteUrl: settings.siteUrl || null,
+    searchConsoleProperty: settings.searchConsoleProperty || settings.siteUrl || null,
   });
 }

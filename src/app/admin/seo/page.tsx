@@ -7,7 +7,7 @@ function authHeaders() {
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
 }
 
-type Status = { configured: boolean; siteUrl: string | null };
+type Status = { configured: boolean; siteUrl: string | null; searchConsoleProperty: string | null };
 type RankRow = { query: string; clicks: number; impressions: number; ctr: number; position: number };
 type PageRow = { page: string; clicks: number; impressions: number; position: number };
 type Service = { slug: string; title: string };
@@ -18,8 +18,6 @@ export default function AdminSeoPage() {
   const [rankError, setRankError] = useState('');
   const [pages, setPages] = useState<PageRow[] | null>(null);
   const [services, setServices] = useState<Service[]>([]);
-  const [indexingState, setIndexingState] = useState<Record<string, 'idle' | 'sending' | 'done' | 'error'>>({});
-  const [indexingError, setIndexingError] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetch('/api/admin/seo/status', { headers: authHeaders() })
@@ -50,20 +48,10 @@ export default function AdminSeoPage() {
     ...services.map((s) => ({ label: s.title, path: `/services/${s.slug}` })),
   ];
 
-  async function requestIndex(path: string) {
-    setIndexingState((s) => ({ ...s, [path]: 'sending' }));
-    const res = await fetch('/api/admin/seo/request-indexing', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ url: `${base}${path}` }),
-    });
-    const json = await res.json();
-    if (json.ok) {
-      setIndexingState((s) => ({ ...s, [path]: 'done' }));
-    } else {
-      setIndexingState((s) => ({ ...s, [path]: 'error' }));
-      setIndexingError((e) => ({ ...e, [path]: json.error }));
-    }
+  function inspectUrl(path: string) {
+    const property = status?.searchConsoleProperty || base;
+    const pageUrl = `${base}${path}`;
+    return `https://search.google.com/search-console/inspect?resource_id=${encodeURIComponent(property)}&id=${encodeURIComponent(pageUrl)}`;
   }
 
   return (
@@ -120,28 +108,29 @@ export default function AdminSeoPage() {
           )}
 
           <div className="card-flat" style={{ padding: 20, marginBottom: 20 }}>
-            <h2 style={{ fontSize: 16, fontWeight: 800, marginBottom: 14 }}>Request indexing</h2>
+            <h2 style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>Request indexing</h2>
+            <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 14 }}>
+              Opens Google&apos;s URL Inspection tool for that page, pre-filled — click <strong>Request indexing</strong> there. Google&apos;s
+              automated indexing API doesn&apos;t accept normal pages, so this manual step is the reliable path.
+            </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {keyPages.map((p) => {
-                const state = indexingState[p.path] || 'idle';
-                return (
-                  <div key={p.path} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 14 }}>{p.label}</div>
-                      <div style={{ color: 'var(--muted)', fontSize: 12.5 }}>{p.path}</div>
-                      {state === 'error' && <div style={{ color: 'var(--coral)', fontSize: 12, marginTop: 4 }}>{indexingError[p.path]}</div>}
-                    </div>
-                    <button
-                      className="btn"
-                      style={{ padding: '8px 14px', fontSize: 13, flexShrink: 0 }}
-                      onClick={() => requestIndex(p.path)}
-                      disabled={state === 'sending' || !status.siteUrl}
-                    >
-                      {state === 'sending' ? 'Sending…' : state === 'done' ? 'Requested ✓' : state === 'error' ? 'Retry' : 'Request indexing'}
-                    </button>
+              {keyPages.map((p) => (
+                <div key={p.path} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{p.label}</div>
+                    <div style={{ color: 'var(--muted)', fontSize: 12.5 }}>{p.path}</div>
                   </div>
-                );
-              })}
+                  <a
+                    href={inspectUrl(p.path)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn"
+                    style={{ padding: '8px 14px', fontSize: 13, flexShrink: 0, textDecoration: 'none', opacity: status.siteUrl ? 1 : 0.5, pointerEvents: status.siteUrl ? 'auto' : 'none' }}
+                  >
+                    Inspect &amp; request →
+                  </a>
+                </div>
+              ))}
             </div>
           </div>
 
