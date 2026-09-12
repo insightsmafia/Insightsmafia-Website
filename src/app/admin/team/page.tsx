@@ -11,7 +11,7 @@ export default function AdminTeamPage() {
         { name: 'name', label: 'Name', type: 'text', required: true },
         { name: 'role', label: 'Role', type: 'text', required: true },
         { name: 'bio', label: 'Bio', type: 'textarea' },
-        { name: 'photo', label: 'Photo URL', type: 'text' },
+        { name: 'photo', label: 'Photo', type: 'image' },
         { name: 'order', label: 'Order', type: 'number' },
         { name: 'published', label: 'Published', type: 'checkbox' },
       ]}

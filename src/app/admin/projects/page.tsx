@@ -28,7 +28,7 @@ export default function AdminProjectsPage() {
       options: services.map((s) => ({ value: s.id, label: s.title })),
     },
     { name: 'summary', label: 'Summary', type: 'textarea' },
-    { name: 'coverImage', label: 'Cover image URL', type: 'text' },
+    { name: 'coverImage', label: 'Cover image', type: 'image' },
     { name: 'year', label: 'Year', type: 'number' },
     { name: 'order', label: 'Order', type: 'number' },
     { name: 'featured', label: 'Featured', type: 'checkbox' },

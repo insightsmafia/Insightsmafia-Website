@@ -9,7 +9,7 @@ export default function AdminClientsPage() {
       title="Client logos"
       fields={[
         { name: 'name', label: 'Client name', type: 'text', required: true },
-        { name: 'logoUrl', label: 'Logo URL (leave blank to show name as text)', type: 'text' },
+        { name: 'logoUrl', label: 'Logo (leave blank to show name as text)', type: 'image' },
         { name: 'linkUrl', label: 'Link URL (optional)', type: 'text' },
         { name: 'order', label: 'Order', type: 'number' },
         { name: 'published', label: 'Published', type: 'checkbox' },

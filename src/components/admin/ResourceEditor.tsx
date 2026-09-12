@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import ImageUploadField from './ImageUploadField';
 
 type Item = Record<string, any>;
 
@@ -8,6 +9,7 @@ export type Field =
   | { name: string; label: string; type: 'text' | 'textarea'; placeholder?: string; required?: boolean }
   | { name: string; label: string; type: 'number' }
   | { name: string; label: string; type: 'checkbox' }
+  | { name: string; label: string; type: 'image' }
   | { name: string; label: string; type: 'select'; options: { value: string; label: string }[] };
 
 type Props = {
@@ -159,6 +161,8 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                       onChange={(e) => setEditing({ ...editing, [f.name]: e.target.checked })}
                       style={{ width: 20, height: 20 }}
                     />
+                  ) : f.type === 'image' ? (
+                    <ImageUploadField value={editing[f.name] ?? ''} onChange={(url) => setEditing({ ...editing, [f.name]: url })} />
                   ) : f.type === 'select' ? (
                     <select
                       value={editing[f.name] ?? ''}
