@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const rows = await getSearchAnalytics(settings.siteUrl);
+    const rows = await getSearchAnalytics(settings.searchConsoleProperty || settings.siteUrl);
     return NextResponse.json({ ok: true, rows });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Search Console request failed.';

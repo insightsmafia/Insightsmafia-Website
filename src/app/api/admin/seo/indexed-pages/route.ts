@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const rows = await getIndexedPages(settings.siteUrl);
+    const rows = await getIndexedPages(settings.searchConsoleProperty || settings.siteUrl);
     return NextResponse.json({ ok: true, rows });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Search Console request failed.';

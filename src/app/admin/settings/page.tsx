@@ -9,6 +9,7 @@ type Settings = {
   phone?: string;
   address?: string;
   siteUrl?: string;
+  searchConsoleProperty?: string;
   homeTitle?: string;
   homeDescription?: string;
   social?: {
@@ -67,6 +68,11 @@ export default function AdminSettingsPage() {
           label="Site URL (must match your Google Search Console property exactly)"
           value={settings.siteUrl ?? ''}
           onChange={(v) => setSettings({ ...settings, siteUrl: v })}
+        />
+        <Field
+          label="Search Console property (only needed for a Domain property, e.g. sc-domain:insightsmafia.com — leave blank if your property is a plain URL)"
+          value={settings.searchConsoleProperty ?? ''}
+          onChange={(v) => setSettings({ ...settings, searchConsoleProperty: v })}
         />
 
         <h2 style={{ fontSize: 15, fontWeight: 800, marginTop: 8 }}>Homepage SEO</h2>

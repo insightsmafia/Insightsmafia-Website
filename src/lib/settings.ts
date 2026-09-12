@@ -7,6 +7,7 @@ export type SiteSettings = {
   phone?: string;
   address?: string;
   siteUrl?: string;
+  searchConsoleProperty?: string;
   homeTitle?: string;
   homeDescription?: string;
   social?: {
