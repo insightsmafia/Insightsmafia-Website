@@ -53,10 +53,12 @@ export default function AdminSeoPage() {
     ? `https://search.google.com/search-console?resource_id=${encodeURIComponent(status.searchConsoleProperty)}`
     : 'https://search.google.com/search-console';
 
-  async function copyPageUrl(path: string) {
+  async function copyAndOpen(path: string) {
+    // open synchronously first — a delayed window.open() after an await can get popup-blocked
+    window.open(searchConsoleDashboardUrl, '_blank');
     await navigator.clipboard.writeText(`${base}${path}`);
     setCopiedPath(path);
-    setTimeout(() => setCopiedPath(''), 1800);
+    setTimeout(() => setCopiedPath(''), 2500);
   }
 
   return (
@@ -115,12 +117,10 @@ export default function AdminSeoPage() {
           <div className="card-flat" style={{ padding: 20, marginBottom: 20 }}>
             <h2 style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>Request indexing</h2>
             <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 14 }}>
-              Google doesn&apos;t support linking straight into an inspection for a specific page, and its automated indexing API rejects
-              normal pages by policy. The reliable way: copy a page&apos;s URL below, then{' '}
-              <a href={searchConsoleDashboardUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--purple)', fontWeight: 700 }}>
-                open Search Console
-              </a>
-              , paste it into the search bar at the top, and click <strong>Request Indexing</strong> there.
+              Google has no way to link straight into an indexing request for a specific page — this is a Google limitation, not
+              something we can bypass. Click a page below: it copies the URL <strong>and</strong> opens Search Console in one step.
+              Once there, press <kbd style={kbdStyle}>⌘V</kbd> in the search bar at the top, hit Enter, then click{' '}
+              <strong>Request Indexing</strong>.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {keyPages.map((p) => (
@@ -130,12 +130,12 @@ export default function AdminSeoPage() {
                     <div style={{ color: 'var(--muted)', fontSize: 12.5 }}>{p.path}</div>
                   </div>
                   <button
-                    className="btn"
+                    className="btn btn-primary"
                     style={{ padding: '8px 14px', fontSize: 13, flexShrink: 0 }}
-                    onClick={() => copyPageUrl(p.path)}
+                    onClick={() => copyAndOpen(p.path)}
                     disabled={!status.siteUrl}
                   >
-                    {copiedPath === p.path ? 'Copied ✓' : 'Copy URL'}
+                    {copiedPath === p.path ? 'Copied — paste in the tab that opened ✓' : 'Copy & open Search Console'}
                   </button>
                 </div>
               ))}
@@ -209,3 +209,11 @@ export default function AdminSeoPage() {
     </div>
   );
 }
+
+const kbdStyle: React.CSSProperties = {
+  padding: '2px 6px',
+  border: '1px solid var(--muted)',
+  borderRadius: 4,
+  fontSize: 12,
+  fontFamily: 'inherit',
+};
