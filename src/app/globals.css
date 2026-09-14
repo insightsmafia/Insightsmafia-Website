@@ -64,7 +64,7 @@ h1, h2, h3 {
    and CTA sit at the actual screen edges instead of a centered column ---- */
 .header-wrap {
   width: 100%;
-  padding: 0 40px;
+  padding: 0 72px;
 }
 
 @media (max-width: 860px) {
@@ -87,6 +87,15 @@ h1, h2, h3 {
 @media (max-width: 640px) {
   .section-pad {
     padding: 64px 0;
+  }
+}
+
+/* ---- tile-grid: services / work / testimonial / faq cards. On mobile a
+   single-column grid stretches the card to the full wrap width, making it
+   look "fit to edges" with no breathing room — add a bit of inset there. ---- */
+@media (max-width: 640px) {
+  .tile-grid {
+    padding: 0 6px;
   }
 }
 
@@ -173,7 +182,7 @@ h1, h2, h3 {
   height: 40px;
   padding: 0;
   border: 2px solid var(--ink);
-  border-radius: 10px;
+  border-radius: 0;
   background: var(--surface);
   cursor: pointer;
   flex-shrink: 0;
@@ -217,11 +226,34 @@ h1, h2, h3 {
   }
 }
 
-/* ---- floating hero badges: percentage positions are tuned for a wide desktop
-   layout and land on top of the text column on narrower screens ---- */
+/* ---- floating hero badges: two position sets (desktop scattered around the
+   text column, mobile confined to the safe strips above/below it) picked via
+   custom properties so inline JS-driven transform (parallax + rotate) never
+   fights the CSS position. A separate outer wrapper carries a gentle bob so
+   it composes independently of that inline transform. ---- */
+.floating-badge {
+  position: absolute;
+  top: var(--top-desktop);
+  left: var(--left-desktop);
+  animation: badge-bob 3.4s ease-in-out infinite;
+  animation-delay: var(--bob-delay, 0s);
+}
+
 @media (max-width: 860px) {
-  .floating-badges {
-    display: none;
+  .floating-badge {
+    top: var(--top-mobile);
+    left: var(--left-mobile);
+  }
+}
+
+@keyframes badge-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-badge {
+    animation: none;
   }
 }
 
@@ -243,6 +275,13 @@ h1, h2, h3 {
 
 .logo-md .logo-word { font-size: 30px; }
 .logo-sm .logo-word { font-size: 22px; }
+
+@media (max-width: 640px) {
+  /* navbar logo: smaller to leave more room for the hamburger */
+  .logo-md .logo-word { font-size: 22px; }
+  /* footer logo: bigger — it's the sole brand mark down there, give it presence */
+  .logo-sm .logo-word { font-size: 30px; }
+}
 
 .logo-insights {
   color: var(--purple);
@@ -415,9 +454,12 @@ h1, h2, h3 {
   flex-shrink: 0;
 }
 
+/* Fixed box (not just a max-height) — every logo scales to fit the same
+   invisible frame via object-fit:contain, so mismatched source image sizes
+   never make one logo read visually bigger or smaller than another. */
 .marquee-logo-img {
-  height: 140px;
-  max-width: 320px;
+  width: 220px;
+  height: 130px;
 }
 
 .marquee-logo-text {
@@ -426,8 +468,8 @@ h1, h2, h3 {
 
 @media (max-width: 860px) {
   .marquee-logo-img {
+    width: 180px;
     height: 110px;
-    max-width: 260px;
   }
   .marquee-logo-text {
     font-size: 32px;
@@ -436,8 +478,8 @@ h1, h2, h3 {
 
 @media (max-width: 480px) {
   .marquee-logo-img {
+    width: 150px;
     height: 90px;
-    max-width: 220px;
   }
   .marquee-logo-text {
     font-size: 26px;

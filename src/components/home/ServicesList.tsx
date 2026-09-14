@@ -18,7 +18,7 @@ export default async function ServicesList() {
           </p>
         </Reveal>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 28 }}>
+        <div className="tile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 28 }}>
           {services.map((s, i) => (
             <Reveal key={s.id} delay={i * 80}>
               <Link

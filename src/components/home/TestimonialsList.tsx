@@ -15,7 +15,7 @@ export default async function TestimonialsList({ limit, showAllLink }: { limit?:
   if (testimonials.length === 0) return null;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 28 }}>
+    <div className="tile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 28 }}>
       {testimonials.map((t, i) => (
         <Reveal key={t.id} delay={i * 80}>
           <div className="card-flat" style={{ padding: 26, height: '100%', transform: `rotate(${tiltFor(i)}deg)`, boxShadow: `6px 6px 0 ${colorFor(i)}` }}>

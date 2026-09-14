@@ -9,7 +9,7 @@ export default function FaqAccordion({ faqs }: { faqs: Faq[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div className="tile-grid" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       {faqs.map((f, i) => {
         const isOpen = openId === f.id;
         return (

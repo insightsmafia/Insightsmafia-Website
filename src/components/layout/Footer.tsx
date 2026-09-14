@@ -114,7 +114,6 @@ export default async function Footer() {
           <p style={{ color: 'var(--muted)', fontSize: 13.5, margin: 0 }}>
             © {new Date().getFullYear()} {settings.siteName}. All rights reserved.
           </p>
-          <p style={{ color: 'var(--purple)', fontWeight: 700, fontSize: 13.5, margin: 0 }}>{settings.tagline}</p>
         </div>
       </div>
     </footer>

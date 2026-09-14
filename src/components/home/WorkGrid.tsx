@@ -19,7 +19,7 @@ export default function WorkGrid() {
           </p>
         </Reveal>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
+        <div className="tile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
           {items.map((it, i) => (
             <Reveal key={it.cat} delay={i * 70}>
               <div
