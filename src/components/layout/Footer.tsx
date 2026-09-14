@@ -25,7 +25,7 @@ export default async function Footer() {
 
   return (
     <footer style={{ borderTop: '2px solid var(--ink)', background: 'var(--surface)' }}>
-      <div className="wrap" style={{ padding: '56px 0 32px' }}>
+      <div className="wrap" style={{ paddingTop: 56, paddingBottom: 32 }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 40, marginBottom: 40 }}>
           <div>
             <Logo size="sm" showTagline={false} />

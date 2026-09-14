@@ -33,7 +33,7 @@ export default function FloatingBadges() {
   }, []);
 
   return (
-    <div ref={ref} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+    <div ref={ref} className="floating-badges" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
       {badges.map((b) => (
         <span
           key={b.label}

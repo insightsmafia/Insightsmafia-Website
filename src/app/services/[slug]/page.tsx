@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import Button from '@/components/ui/Button';
 import { prisma } from '@/lib/db';
+import { proxyImage } from '@/lib/imageProxy';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const service = await prisma.service.findUnique({ where: { slug: params.slug } });
@@ -65,7 +66,7 @@ export default async function ServicePage({ params }: { params: { slug: string }
                       display: 'flex',
                       alignItems: 'flex-end',
                       padding: 20,
-                      background: p.coverImage ? `url(${p.coverImage}) center/cover` : ['var(--coral)', 'var(--yellow)', 'var(--purple)'][i % 3],
+                      background: p.coverImage ? `url(${proxyImage(p.coverImage)}) center/cover` : ['var(--coral)', 'var(--yellow)', 'var(--purple)'][i % 3],
                       boxShadow: '6px 6px 0 var(--ink)',
                     }}
                   >

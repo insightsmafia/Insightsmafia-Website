@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import Reveal from '@/components/ui/Reveal';
+import { proxyImage } from '@/lib/imageProxy';
 
 const tiltFor = (i: number) => [-2, 1.5, -1, 2, -1.5][i % 5];
 const colorFor = (i: number) => ['var(--coral)', 'var(--yellow)', 'var(--purple)'][i % 3];
@@ -29,7 +30,7 @@ export default async function TeamSection() {
                       width: 64,
                       height: 64,
                       borderRadius: '50%',
-                      background: m.photo ? `url(${m.photo}) center/cover` : colorFor(i),
+                      background: m.photo ? `url(${proxyImage(m.photo)}) center/cover` : colorFor(i),
                       border: '2px solid var(--ink)',
                       marginBottom: 16,
                       display: 'flex',

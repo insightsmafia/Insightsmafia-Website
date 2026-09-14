@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { proxyImage } from '@/lib/imageProxy';
 
 export default function ImageUploadField({ value, onChange }: { value: string; onChange: (url: string) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,7 +38,7 @@ export default function ImageUploadField({ value, onChange }: { value: string; o
         {value && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={value}
+            src={proxyImage(value)}
             alt=""
             style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 10, border: '2px solid var(--ink)', flexShrink: 0 }}
           />

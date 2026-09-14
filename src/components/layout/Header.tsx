@@ -34,7 +34,7 @@ export default function Header() {
 
   return (
     <header ref={headerRef} style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--bg)', borderBottom: '2px solid var(--ink)' }}>
-      <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 32px', gap: 24 }}>
+      <div className="header-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 14, paddingBottom: 14, gap: 24 }}>
         <a href="/" aria-label="Insights Mafia" style={{ textDecoration: 'none' }}>
           <Logo showTagline={false} />
         </a>

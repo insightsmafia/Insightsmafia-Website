@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db';
+import { proxyImage } from '@/lib/imageProxy';
 
 type Client = {
   id: string;
@@ -10,9 +11,9 @@ type Client = {
 function ClientItem({ c }: { c: Client }) {
   const item = c.logoUrl ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={c.logoUrl} alt={c.name} style={{ height: 88, maxWidth: 220, objectFit: 'contain' }} />
+    <img src={proxyImage(c.logoUrl)} alt={c.name} className="marquee-logo-img" style={{ objectFit: 'contain' }} />
   ) : (
-    <span style={{ fontWeight: 800, fontSize: 26, color: 'var(--ink)', whiteSpace: 'nowrap' }}>{c.name}</span>
+    <span className="marquee-logo-text" style={{ fontWeight: 800, color: 'var(--ink)', whiteSpace: 'nowrap' }}>{c.name}</span>
   );
   return c.linkUrl ? (
     <a href={c.linkUrl} target="_blank" rel="noreferrer" className="marquee-item">

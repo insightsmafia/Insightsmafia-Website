@@ -60,6 +60,25 @@ h1, h2, h3 {
   }
 }
 
+/* ---- header-wrap: spans the true viewport edges (no 1180px cap) so the logo
+   and CTA sit at the actual screen edges instead of a centered column ---- */
+.header-wrap {
+  width: 100%;
+  padding: 0 40px;
+}
+
+@media (max-width: 860px) {
+  .header-wrap {
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-wrap {
+    padding: 0 20px;
+  }
+}
+
 .section-pad {
   padding: 100px 0;
   position: relative;
@@ -186,7 +205,7 @@ h1, h2, h3 {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    padding: 8px 32px 24px;
+    padding: 8px 24px 24px;
     border-top: 2px solid var(--ink);
     background: var(--bg);
   }
@@ -195,6 +214,14 @@ h1, h2, h3 {
 @media (max-width: 640px) {
   .mobile-menu {
     padding: 8px 20px 20px;
+  }
+}
+
+/* ---- floating hero badges: percentage positions are tuned for a wide desktop
+   layout and land on top of the text column on narrower screens ---- */
+@media (max-width: 860px) {
+  .floating-badges {
+    display: none;
   }
 }
 
@@ -386,6 +413,35 @@ h1, h2, h3 {
   align-items: center;
   text-decoration: none;
   flex-shrink: 0;
+}
+
+.marquee-logo-img {
+  height: 140px;
+  max-width: 320px;
+}
+
+.marquee-logo-text {
+  font-size: 38px;
+}
+
+@media (max-width: 860px) {
+  .marquee-logo-img {
+    height: 110px;
+    max-width: 260px;
+  }
+  .marquee-logo-text {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .marquee-logo-img {
+    height: 90px;
+    max-width: 220px;
+  }
+  .marquee-logo-text {
+    font-size: 26px;
+  }
 }
 
 @keyframes marquee-scroll {
