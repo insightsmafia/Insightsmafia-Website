@@ -30,16 +30,33 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const settings = await getSettings();
   const base = (settings.siteUrl || 'https://insightsmafia.com').replace(/\/$/, '');
 
-  const jsonLd = {
+  const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
+    '@type': 'MarketingAgency',
     name: settings.siteName,
     url: base,
     logo: `${base}/logo.jpg`,
     email: settings.contactEmail,
     ...(settings.phone && { telephone: settings.phone }),
-    ...(settings.address && { address: settings.address }),
   };
+
+  if (settings.address) {
+    // Standard "..., City, State, Postal Code" formatting — parse into structured PostalAddress
+    // for local-business rich results, while the raw string keeps powering the footer/privacy page.
+    const parts = settings.address.split(',').map((s) => s.trim());
+    if (parts.length >= 3) {
+      jsonLd.address = {
+        '@type': 'PostalAddress',
+        streetAddress: parts.slice(0, -3).join(', ') || parts[0],
+        addressLocality: parts[parts.length - 3] ?? parts[0],
+        addressRegion: parts[parts.length - 2],
+        postalCode: parts[parts.length - 1],
+        addressCountry: 'IN',
+      };
+    } else {
+      jsonLd.address = settings.address;
+    }
+  }
 
   const sameAs = Object.values(settings.social ?? {}).filter(Boolean);
   if (sameAs.length > 0) (jsonLd as Record<string, unknown>).sameAs = sameAs;
