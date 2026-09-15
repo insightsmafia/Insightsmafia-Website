@@ -18,7 +18,7 @@ export default function CapabilitiesMarquee() {
   const track = [...capabilities, ...capabilities];
 
   return (
-    <div className="marquee-mask">
+    <div className="marquee-mask pill-mask">
       <div className="marquee-track pill-track">
         {track.map((c, i) => (
           <CapabilityPill key={`${c.label}-${i}`} c={c} />

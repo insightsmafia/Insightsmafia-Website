@@ -247,13 +247,16 @@ h1, h2, h3 {
 }
 
 @media (max-width: 768px) {
+  /* height is the viewport minus the sticky header's own height (not a flat
+     100vh) so the hero ends exactly at the fold — no leftover hero peeking
+     above the next section, and scrolling reveals it immediately. */
   .hero-section {
     flex-direction: column;
     justify-content: center;
-    min-height: 100vh;
-    min-height: 100svh;
-    padding-top: 96px;
-    padding-bottom: 40px;
+    min-height: calc(100vh - var(--header-h, 76px));
+    min-height: calc(100svh - var(--header-h, 76px));
+    padding-top: 20px;
+    padding-bottom: 24px;
   }
 
   .hero-blob-yellow {
@@ -559,7 +562,14 @@ h1, h2, h3 {
 
 /* ---- capabilities marquee: same auto-scroll pattern as the clients marquee
    above it, just a tighter gap since pills are compact text rather than
-   logo images. Plain non-interactive pills — no link, no hover state. ---- */
+   logo images. Plain non-interactive pills — no link, no hover state. No
+   edge fade here (unlike .marquee-mask's default) — pills scroll fully
+   in and out instead of fading, so they never look cropped at the edge. ---- */
+.pill-mask {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
 .pill-track {
   gap: 18px;
 }
