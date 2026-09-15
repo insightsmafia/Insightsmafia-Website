@@ -384,8 +384,9 @@ h1, h2, h3 {
 .logo-sm .logo-word { font-size: 22px; }
 
 @media (max-width: 640px) {
-  /* navbar logo: smaller to leave more room for the hamburger */
-  .logo-md .logo-word { font-size: 22px; }
+  /* navbar logo: still smaller than desktop to leave room for the hamburger,
+     but bigger than before for visibility */
+  .logo-md .logo-word { font-size: 28px; }
   /* footer logo: bigger — it's the sole brand mark down there, give it presence */
   .logo-sm .logo-word { font-size: 30px; }
 }
