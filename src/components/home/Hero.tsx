@@ -1,6 +1,6 @@
 import Button from '@/components/ui/Button';
 import FloatingBadges from './FloatingBadges';
-import CapabilitiesMarquee from './CapabilitiesMarquee';
+import CapabilityBadges from './CapabilityBadges';
 
 export default function Hero() {
   return (
@@ -12,7 +12,7 @@ export default function Hero() {
       <div className="hero-blob-yellow" style={{ position: 'absolute', top: '-10%', right: '-10%', borderRadius: '50%', background: 'var(--yellow)', opacity: 0.35, filter: 'blur(2px)' }} />
       <div style={{ position: 'absolute', bottom: '-15%', left: '-10%', width: 420, height: 420, borderRadius: '50%', background: 'var(--purple)', opacity: 0.15 }} />
 
-      {/* desktop-only floating badges; mobile shows the marquee below instead */}
+      {/* desktop-only floating badges; mobile shows the static row below instead */}
       <FloatingBadges />
 
       <div className="wrap" style={{ position: 'relative', zIndex: 2, maxWidth: 680 }}>
@@ -32,8 +32,8 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="hero-marquee-mobile" style={{ position: 'relative', zIndex: 2 }}>
-        <CapabilitiesMarquee />
+      <div className="hero-badges-mobile" style={{ position: 'relative', zIndex: 2 }}>
+        <CapabilityBadges />
       </div>
     </section>
   );

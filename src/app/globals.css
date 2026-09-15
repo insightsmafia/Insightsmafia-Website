@@ -228,7 +228,8 @@ h1, h2, h3 {
 
 /* ---- hero: desktop keeps the original floating-badges layout (scattered
    badges need the taller 92vh hero they were positioned against); mobile
-   instead shows the capabilities marquee below the CTAs, full-screen. ---- */
+   instead shows a static, centered row of the same badges below the CTAs,
+   full-screen. ---- */
 .hero-section {
   display: flex;
   align-items: center;
@@ -241,8 +242,8 @@ h1, h2, h3 {
   height: 480px;
 }
 
-/* mobile-only: the capabilities marquee replaces the floating badges below */
-.hero-marquee-mobile {
+/* mobile-only: the static badges row replaces the floating badges below */
+.hero-badges-mobile {
   display: none;
 }
 
@@ -256,7 +257,7 @@ h1, h2, h3 {
     min-height: calc(100vh - var(--header-h, 76px));
     min-height: calc(100svh - var(--header-h, 76px));
     padding-top: 20px;
-    padding-bottom: 24px;
+    padding-bottom: 28px;
   }
 
   .hero-blob-yellow {
@@ -264,11 +265,12 @@ h1, h2, h3 {
     height: 260px;
   }
 
-  .hero-marquee-mobile {
+  .hero-badges-mobile {
     display: block;
+    margin-top: 22px;
   }
 
-  /* desktop-only floating badges — mobile uses the marquee instead */
+  /* desktop-only floating badges — mobile uses the static row instead */
   .floating-badges {
     display: none;
   }
@@ -560,18 +562,15 @@ h1, h2, h3 {
   }
 }
 
-/* ---- capabilities marquee: same auto-scroll pattern as the clients marquee
-   above it, just a tighter gap since pills are compact text rather than
-   logo images. Plain non-interactive pills — no link, no hover state. No
-   edge fade here (unlike .marquee-mask's default) — pills scroll fully
-   in and out instead of fading, so they never look cropped at the edge. ---- */
-.pill-mask {
-  mask-image: none;
-  -webkit-mask-image: none;
-}
-
-.pill-track {
-  gap: 18px;
+/* ---- mobile hero capability badges: a static, centered, wrapped row (not
+   a marquee — no overflow:hidden ancestor here) so nothing bleeds off the
+   screen edge and each pill's box-shadow has room to render in full. ---- */
+.hero-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 10px;
+  padding: 0 20px;
 }
 
 .capability-pill {
