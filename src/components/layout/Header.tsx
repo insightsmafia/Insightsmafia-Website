@@ -32,6 +32,13 @@ export default function Header() {
     setMenuOpen(false);
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onScroll = () => setMenuOpen(false);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [menuOpen]);
+
   return (
     <header ref={headerRef} style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--bg)', borderBottom: '2px solid var(--ink)' }}>
       <div className="header-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 14, paddingBottom: 14, gap: 24 }}>
