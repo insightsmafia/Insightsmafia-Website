@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 const badges = [
   {
     label: 'Film & Ad Shoots',
+    href: '/services/content-creation',
     color: 'var(--coral)',
     rotate: -6,
     depth: 30,
@@ -15,6 +16,7 @@ const badges = [
   },
   {
     label: 'Social Media',
+    href: '/services/social-media-management',
     color: 'var(--purple)',
     rotate: 4,
     depth: 55,
@@ -24,6 +26,7 @@ const badges = [
   },
   {
     label: 'Web Dev',
+    href: '/services/web-development',
     color: 'var(--yellow)',
     rotate: -3,
     depth: 20,
@@ -36,6 +39,7 @@ const badges = [
   },
   {
     label: 'Performance Ads',
+    href: '/services/performance-marketing',
     color: 'var(--purple)',
     rotate: 5,
     depth: 45,
@@ -45,6 +49,7 @@ const badges = [
   },
   {
     label: 'Branding',
+    href: '/services/branding-logo-design',
     color: 'var(--coral)',
     rotate: -4,
     depth: 35,
@@ -77,7 +82,7 @@ export default function FloatingBadges() {
   }, []);
 
   return (
-    <div ref={ref} className="floating-badges" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+    <div ref={ref} className="floating-badges" style={{ position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none' }}>
       {badges.map((b) => (
         <div
           key={b.label}
@@ -93,26 +98,20 @@ export default function FloatingBadges() {
             } as React.CSSProperties
           }
         >
-          <span
+          <a
+            href={b.href}
             data-depth={b.depth}
             data-rotate={b.rotate}
-            style={{
-              display: 'inline-block',
-              background: b.color,
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: 13.5,
-              padding: '9px 16px',
-              borderRadius: 100,
-              border: '2px solid var(--ink)',
-              boxShadow: '4px 4px 0 var(--ink)',
-              transform: `rotate(${b.rotate}deg)`,
-              whiteSpace: 'nowrap',
-              transition: 'transform 0.05s linear',
-            }}
+            className="floating-badge-link"
+            style={
+              {
+                '--badge-color': b.color,
+                transform: `rotate(${b.rotate}deg)`,
+              } as React.CSSProperties
+            }
           >
             {b.label}
-          </span>
+          </a>
         </div>
       ))}
     </div>

@@ -292,6 +292,37 @@ h1, h2, h3 {
   }
 }
 
+/* ---- floating badges are now links. `transform` on this exact element is
+   already owned by the mousemove-driven parallax/rotate (set via inline
+   style in JS), so hover feedback deliberately avoids `transform` entirely
+   — a scale() here would either fight the JS-set value or get silently
+   overwritten by the next mousemove tick. box-shadow + brightness give the
+   same "this is interactive" cue without touching that property.
+   Everything static lives here rather than as inline styles specifically
+   so :hover can actually win the cascade — an inline box-shadow would
+   always beat a stylesheet :hover rule regardless of specificity. ---- */
+.floating-badge-link {
+  display: inline-block;
+  background: var(--badge-color);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 9px 16px;
+  border-radius: 100px;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  white-space: nowrap;
+  text-decoration: none;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.05s linear, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.floating-badge-link:hover {
+  box-shadow: 6px 6px 0 var(--ink);
+  filter: brightness(1.08);
+}
+
 /* ---- logo: SF Pro semibold wordmark, flat, no border/shadow ---- */
 .logo {
   display: inline-flex;
@@ -493,7 +524,7 @@ h1, h2, h3 {
    breakpoint — every current and future logo lines up at the same height
    regardless of its source image's own resolution or aspect ratio. */
 .marquee-logo-img {
-  height: 56px;
+  height: 96px;
   width: auto;
   max-width: none;
   object-fit: contain;
@@ -501,6 +532,15 @@ h1, h2, h3 {
 
 .marquee-logo-text {
   font-size: 32px;
+}
+
+@media (min-width: 1024px) {
+  .marquee-logo-img {
+    height: 120px;
+  }
+  .marquee-logo-text {
+    font-size: 40px;
+  }
 }
 
 @keyframes marquee-scroll {
