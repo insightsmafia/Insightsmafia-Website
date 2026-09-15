@@ -28,19 +28,17 @@ export default async function ClientsMarquee() {
   const clients = await prisma.clientLogo.findMany({ where: { published: true }, orderBy: { order: 'asc' } });
   if (clients.length === 0) return null;
 
-  // Always scroll as a single continuous line — same pattern as the hero's
-  // capability-badges marquee — regardless of how many logos there are.
-  const track = [...clients, ...clients];
-
+  // No duplication — the real client list just slides across once per loop.
+  // As more logos get published this naturally fills the loop out on its own.
   return (
     <section style={{ padding: '32px 0 44px', background: 'var(--bg)', overflow: 'hidden', borderTop: '2px solid var(--line)' }}>
       <p style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 36 }}>
         Brands we&apos;ve worked with
       </p>
       <div className="marquee-mask">
-        <div className="marquee-track">
-          {track.map((c, i) => (
-            <ClientItem key={`${c.id}-${i}`} c={c} />
+        <div className="marquee-track client-track">
+          {clients.map((c) => (
+            <ClientItem key={c.id} c={c} />
           ))}
         </div>
       </div>
