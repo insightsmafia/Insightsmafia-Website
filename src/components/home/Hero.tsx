@@ -36,6 +36,11 @@ export default function Hero() {
         </div>
       </div>
 
+      {/* mobile-only: mirrors .hero-top-spacer above so the text block ends up
+          centered between the hero's top edge and the marquee's top edge,
+          rather than between the hero's top and bottom edges */}
+      <div className="hero-mid-spacer" aria-hidden="true" />
+
       <div className="hero-badges-mobile" style={{ position: 'relative', zIndex: 2 }}>
         <CapabilityBadges />
       </div>

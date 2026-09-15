@@ -247,7 +247,8 @@ h1, h2, h3 {
   display: none;
 }
 
-.hero-top-spacer {
+.hero-top-spacer,
+.hero-mid-spacer {
   display: none;
 }
 
@@ -256,18 +257,16 @@ h1, h2, h3 {
      100vh) so the hero ends exactly at the fold — no leftover hero peeking
      above the next section, and scrolling reveals it immediately.
 
-     Grid (not flex) for the vertical layout: a 3-row track of
-     minmax(0,1fr) / auto / minmax(0,1fr) gives the top spacer and the
-     badges row genuinely equal heights — flexbox's automatic minimum size
-     kept inflating the badges row by its content's height even at
-     flex-basis:0 and min-height:0, throwing off the 1:1 split; grid's
-     explicit minmax(0, 1fr) doesn't have that quirk. Equal heights on
-     those two rows is what keeps the text vertically centered in the hero
-     while the badges line centers within its own (now equal) row. */
+     Grid (not flex) for the vertical layout: text is centered between the
+     hero's top edge and the marquee's top edge specifically (not between
+     the hero's top and bottom), so .hero-top-spacer and .hero-mid-spacer —
+     the rows immediately before and after the text — are matching
+     minmax(0,1fr) tracks; the badges row itself is plain `auto`, sized to
+     its own content only, so it's never stretched/repositioned by this. */
   .hero-section {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr) auto;
     min-height: calc(100vh - var(--header-h, 76px));
     min-height: calc(100svh - var(--header-h, 76px));
     padding-top: 20px;
@@ -279,7 +278,8 @@ h1, h2, h3 {
     height: 260px;
   }
 
-  .hero-top-spacer {
+  .hero-top-spacer,
+  .hero-mid-spacer {
     display: block;
   }
 
