@@ -6,16 +6,25 @@ const capabilities = [
   { label: 'Branding', color: 'var(--coral)' },
 ];
 
-// Mobile-only: a static, centered, wrapped row below the hero CTAs — see
-// .hero-badges-row. Desktop shows the floating badges instead.
+// Mobile-only: a single continuously auto-scrolling line below the hero
+// CTAs, vertically centered in the remaining hero space — see
+// .hero-badges-mobile / .pill-mask. Desktop shows the floating badges instead.
 export default function CapabilityBadges() {
+  const track = [...capabilities, ...capabilities];
+
   return (
-    <div className="hero-badges-row">
-      {capabilities.map((c) => (
-        <span key={c.label} className="capability-pill" style={{ '--pill-color': c.color } as React.CSSProperties}>
-          {c.label}
-        </span>
-      ))}
+    <div className="marquee-mask pill-mask">
+      <div className="marquee-track pill-track">
+        {track.map((c, i) => (
+          <span
+            key={`${c.label}-${i}`}
+            className="capability-pill"
+            style={{ '--pill-color': c.color } as React.CSSProperties}
+          >
+            {c.label}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
