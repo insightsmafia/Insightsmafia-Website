@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ImageUploadField from './ImageUploadField';
 
 type Item = Record<string, any>;
@@ -19,19 +19,31 @@ type Props = {
   defaults?: Item;
   getLabel: (item: Item) => string;
   getSubtitle?: (item: Item) => string;
+  /** Enables drag-to-reorder handles on each row; persists the new `order` values on drop. */
+  reorderable?: boolean;
 };
+
+function GripIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, color: 'var(--muted)' }}>
+      {[4, 8, 12].flatMap((cy) => [5, 11].map((cx) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.4" fill="currentColor" />))}
+    </svg>
+  );
+}
 
 function authHeaders() {
   const token = localStorage.getItem('admin_token');
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
 }
 
-export default function ResourceEditor({ resource, title, fields, defaults = {}, getLabel, getSubtitle }: Props) {
+export default function ResourceEditor({ resource, title, fields, defaults = {}, getLabel, getSubtitle, reorderable }: Props) {
   const endpoint = `/api/admin/${resource}`;
   const [items, setItems] = useState<Item[]>([]);
   const [editing, setEditing] = useState<Item | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const dragIndex = useRef<number | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   function load() {
     setLoading(true);
@@ -89,6 +101,38 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
     load();
   }
 
+  function handleDragStart(index: number) {
+    dragIndex.current = index;
+  }
+
+  function handleDragOver(e: React.DragEvent, index: number, item: Item) {
+    e.preventDefault();
+    setDragOverId(item.id);
+    const from = dragIndex.current;
+    if (from === null || from === index) return;
+    setItems((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(index, 0, moved);
+      return next;
+    });
+    dragIndex.current = index;
+  }
+
+  async function handleDrop() {
+    dragIndex.current = null;
+    setDragOverId(null);
+    // Only persist rows whose position actually changed, to avoid rewriting the whole table on every drop.
+    await Promise.all(
+      items.map((item, index) =>
+        item.order === index
+          ? null
+          : fetch(endpoint, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ id: item.id, order: index }) })
+      )
+    );
+    setItems((prev) => prev.map((item, index) => ({ ...item, order: index })));
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -104,9 +148,31 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
         <p style={{ color: 'var(--muted)' }}>Nothing here yet — click + New to add one.</p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {items.map((item) => (
-            <div key={item.id} className="card-flat" style={{ padding: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
-              <div style={{ minWidth: 0 }}>
+          {items.map((item, index) => (
+            <div
+              key={item.id}
+              className="card-flat"
+              draggable={reorderable}
+              onDragStart={() => handleDragStart(index)}
+              onDragOver={(e) => handleDragOver(e, index, item)}
+              onDrop={(e) => e.preventDefault()}
+              onDragEnd={handleDrop}
+              style={{
+                padding: 18,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 16,
+                outline: dragOverId === item.id ? '2px dashed var(--purple)' : undefined,
+                opacity: reorderable && dragIndex.current !== null && dragOverId === item.id ? 0.7 : 1,
+              }}
+            >
+              {reorderable && (
+                <span style={{ cursor: 'grab', display: 'flex', alignItems: 'center', flexShrink: 0 }} title="Drag to reorder">
+                  <GripIcon />
+                </span>
+              )}
+              <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontWeight: 700 }}>{getLabel(item)}</div>
                 {getSubtitle && <div style={{ color: 'var(--muted)', fontSize: 13.5 }}>{getSubtitle(item)}</div>}
               </div>

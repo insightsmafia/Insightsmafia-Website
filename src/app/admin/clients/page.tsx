@@ -7,6 +7,7 @@ export default function AdminClientsPage() {
     <ResourceEditor
       resource="clients"
       title="Client logos"
+      reorderable
       fields={[
         { name: 'name', label: 'Client name', type: 'text', required: true },
         { name: 'logoUrl', label: 'Logo (leave blank to show name as text)', type: 'image' },
