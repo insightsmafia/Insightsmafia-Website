@@ -10,9 +10,11 @@ const links = [
   { href: '/why-us', label: 'Why Us?' },
 ];
 
+type MenuState = 'closed' | 'open' | 'closing';
+
 export default function Header() {
   const headerRef = useRef<HTMLElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuState, setMenuState] = useState<MenuState>('closed');
 
   useEffect(() => {
     const el = headerRef.current;
@@ -26,18 +28,18 @@ export default function Header() {
     const ro = new ResizeObserver(syncHeight);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [menuOpen]);
+  }, [menuState]);
 
   useEffect(() => {
-    setMenuOpen(false);
+    setMenuState('closed');
   }, []);
 
   useEffect(() => {
-    if (!menuOpen) return;
-    const onScroll = () => setMenuOpen(false);
+    if (menuState !== 'open') return;
+    const onScroll = () => setMenuState('closing');
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [menuOpen]);
+  }, [menuState]);
 
   return (
     <header ref={headerRef} style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--bg)', borderBottom: '2px solid var(--ink)' }}>
@@ -59,22 +61,25 @@ export default function Header() {
           type="button"
           className="nav-toggle"
           aria-label="Toggle menu"
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((v) => !v)}
+          aria-expanded={menuState === 'open'}
+          onClick={() => setMenuState((s) => (s === 'closed' ? 'open' : 'closing'))}
         >
           <span />
           <span />
           <span />
         </button>
       </div>
-      {menuOpen && (
-        <div className="mobile-menu">
+      {menuState !== 'closed' && (
+        <div
+          className={`mobile-menu${menuState === 'closing' ? ' is-closing' : ''}`}
+          onAnimationEnd={() => setMenuState((s) => (s === 'closing' ? 'closed' : s))}
+        >
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
-                onClick={() => setMenuOpen(false)}
+                onClick={() => setMenuState('closing')}
                 style={{ fontWeight: 700, fontSize: 16, textDecoration: 'none', padding: '12px 0' }}
               >
                 {l.label}

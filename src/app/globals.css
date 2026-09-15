@@ -230,6 +230,34 @@ h1, h2, h3 {
     padding: 8px 24px 24px;
     border-top: 2px solid var(--ink);
     background: var(--bg);
+    transform-origin: top;
+    animation: mobile-menu-in 180ms ease;
+  }
+
+  .mobile-menu.is-closing {
+    animation: mobile-menu-out 200ms ease forwards;
+  }
+}
+
+@keyframes mobile-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mobile-menu-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
   }
 }
 
