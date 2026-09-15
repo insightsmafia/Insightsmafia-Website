@@ -176,24 +176,24 @@ h1, h2, h3 {
 .nav-toggle {
   display: none;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 2px solid var(--ink);
-  border-radius: 0;
-  background: var(--surface);
+  border: none;
+  background: transparent;
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .nav-toggle span {
   display: block;
-  width: 18px;
-  height: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
   background: var(--ink);
-  margin: 0 auto;
 }
 
 .mobile-menu {
@@ -226,6 +226,37 @@ h1, h2, h3 {
   }
 }
 
+/* ---- hero: mobile-only adjustments (768px and below only, desktop untouched) ---- */
+.hero-section {
+  padding-top: 90px;
+  min-height: 92vh;
+}
+
+.hero-blob-yellow {
+  width: 480px;
+  height: 480px;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    /* min-height is intentionally dropped here (not just shrunk): a vh-based
+       height combined with vertically-centered content makes the empty space
+       above/below the text scale with the DEVICE's height, not the content —
+       so any percentage-positioned badge that's "safe" on a tall phone lands
+       on a button on a short one. Fixed padding reserves deterministic zones
+       above/below the text for the badges instead, independent of viewport
+       height entirely. */
+    min-height: 0;
+    padding-top: 130px;
+    padding-bottom: 170px;
+  }
+
+  .hero-blob-yellow {
+    width: 312px;
+    height: 312px;
+  }
+}
+
 /* ---- floating hero badges: two position sets (desktop scattered around the
    text column, mobile confined to the safe strips above/below it) picked via
    custom properties so inline JS-driven transform (parallax + rotate) never
@@ -235,13 +266,17 @@ h1, h2, h3 {
   position: absolute;
   top: var(--top-desktop);
   left: var(--left-desktop);
+  bottom: auto;
   animation: badge-bob 3.4s ease-in-out infinite;
   animation-delay: var(--bob-delay, 0s);
 }
 
-@media (max-width: 860px) {
+@media (max-width: 768px) {
   .floating-badge {
-    top: var(--top-mobile);
+    /* mobile badges anchor to whichever edge (top or bottom) is set per
+       badge below — the other is 'auto' so it doesn't fight the anchor */
+    top: var(--top-mobile, auto);
+    bottom: var(--bottom-mobile, auto);
     left: var(--left-mobile);
   }
 }
@@ -454,36 +489,18 @@ h1, h2, h3 {
   flex-shrink: 0;
 }
 
-/* Fixed box (not just a max-height) — every logo scales to fit the same
-   invisible frame via object-fit:contain, so mismatched source image sizes
-   never make one logo read visually bigger or smaller than another. */
+/* One shared class, fixed height + auto width, applied uniformly at every
+   breakpoint — every current and future logo lines up at the same height
+   regardless of its source image's own resolution or aspect ratio. */
 .marquee-logo-img {
-  width: 220px;
-  height: 130px;
+  height: 56px;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
 }
 
 .marquee-logo-text {
-  font-size: 38px;
-}
-
-@media (max-width: 860px) {
-  .marquee-logo-img {
-    width: 180px;
-    height: 110px;
-  }
-  .marquee-logo-text {
-    font-size: 32px;
-  }
-}
-
-@media (max-width: 480px) {
-  .marquee-logo-img {
-    width: 150px;
-    height: 90px;
-  }
-  .marquee-logo-text {
-    font-size: 26px;
-  }
+  font-size: 32px;
 }
 
 @keyframes marquee-scroll {

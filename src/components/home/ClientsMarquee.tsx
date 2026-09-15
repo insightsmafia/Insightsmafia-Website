@@ -11,7 +11,7 @@ type Client = {
 function ClientItem({ c }: { c: Client }) {
   const item = c.logoUrl ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={proxyImage(c.logoUrl)} alt={c.name} className="marquee-logo-img" style={{ objectFit: 'contain' }} />
+    <img src={proxyImage(c.logoUrl)} alt={c.name} className="marquee-logo-img" />
   ) : (
     <span className="marquee-logo-text" style={{ fontWeight: 800, color: 'var(--ink)', whiteSpace: 'nowrap' }}>{c.name}</span>
   );

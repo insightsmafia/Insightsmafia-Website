@@ -4,11 +4,11 @@ import FloatingBadges from './FloatingBadges';
 export default function Hero() {
   return (
     <section
-      className="section-pad"
-      style={{ position: 'relative', overflow: 'hidden', paddingTop: 90, minHeight: '92vh', display: 'flex', alignItems: 'center' }}
+      className="section-pad hero-section"
+      style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center' }}
     >
       {/* background blobs */}
-      <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: 480, height: 480, borderRadius: '50%', background: 'var(--yellow)', opacity: 0.35, filter: 'blur(2px)' }} />
+      <div className="hero-blob-yellow" style={{ position: 'absolute', top: '-10%', right: '-10%', borderRadius: '50%', background: 'var(--yellow)', opacity: 0.35, filter: 'blur(2px)' }} />
       <div style={{ position: 'absolute', bottom: '-15%', left: '-10%', width: 420, height: 420, borderRadius: '50%', background: 'var(--purple)', opacity: 0.15 }} />
 
       <FloatingBadges />
