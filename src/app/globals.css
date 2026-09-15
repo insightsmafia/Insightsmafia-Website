@@ -522,11 +522,10 @@ h1, h2, h3 {
   }
 }
 
-/* ---- clients marquee: slow, seamless, pauses on hover ---- */
+/* ---- clients marquee: slow, seamless, pauses on hover — same loop timing
+   and hard (non-fading) edges as the hero's capability-badges marquee. ---- */
 .marquee-mask {
   overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
 
 .marquee-track {
@@ -534,7 +533,7 @@ h1, h2, h3 {
   align-items: center;
   gap: 56px;
   width: max-content;
-  animation: marquee-scroll 16s linear infinite;
+  animation: marquee-scroll 26s linear infinite;
 }
 
 .marquee-mask:hover .marquee-track {
@@ -552,22 +551,22 @@ h1, h2, h3 {
    breakpoint — every current and future logo lines up at the same height
    regardless of its source image's own resolution or aspect ratio. */
 .marquee-logo-img {
-  height: 96px;
+  height: 56px;
   width: auto;
   max-width: none;
   object-fit: contain;
 }
 
 .marquee-logo-text {
-  font-size: 32px;
+  font-size: 22px;
 }
 
 @media (min-width: 1024px) {
   .marquee-logo-img {
-    height: 120px;
+    height: 100px;
   }
   .marquee-logo-text {
-    font-size: 40px;
+    font-size: 34px;
   }
 }
 
@@ -583,27 +582,20 @@ h1, h2, h3 {
 }
 
 /* ---- mobile hero capability badges: single scrolling line, same pattern
-   as the clients marquee. `width: 100%; min-width: 0;` keep this a proper
-   flex-shrinkable child of .hero-badges-mobile — without it, the flex item
-   would grow to the track's full (much wider than the screen) content
-   width instead of clipping to the viewport. Extra vertical padding (unlike
-   .marquee-mask's default) gives each pill's box-shadow room so it isn't
-   clipped by this container's own overflow:hidden. No edge fade either —
-   pills scroll fully in/out instead of fading at the mask boundary. ---- */
+   and timing as the clients marquee. `width: 100%; min-width: 0;` keep this
+   a proper flex-shrinkable child of .hero-badges-mobile — without it, the
+   flex item would grow to the track's full (much wider than the screen)
+   content width instead of clipping to the viewport. Extra vertical padding
+   gives each pill's box-shadow room so it isn't clipped by this container's
+   own overflow:hidden. ---- */
 .pill-mask {
   width: 100%;
   min-width: 0;
   padding: 8px 0;
-  mask-image: none;
-  -webkit-mask-image: none;
 }
 
 .pill-track {
   gap: 18px;
-  /* slower than the default 16s — with only 5 unique pills the loop point
-     comes around quickly at that speed and reads as a restart rather than
-     continuous motion */
-  animation-duration: 26s;
 }
 
 .capability-pill {

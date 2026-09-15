@@ -28,31 +28,22 @@ export default async function ClientsMarquee() {
   const clients = await prisma.clientLogo.findMany({ where: { published: true }, orderBy: { order: 'asc' } });
   if (clients.length === 0) return null;
 
-  // Fewer than this many logos doesn't leave enough content to loop seamlessly —
-  // duplicating them for the scroll animation would just repeat the same few right next to each other.
-  const enoughToScroll = clients.length >= 6;
-  const track = enoughToScroll ? [...clients, ...clients] : clients;
+  // Always scroll as a single continuous line — same pattern as the hero's
+  // capability-badges marquee — regardless of how many logos there are.
+  const track = [...clients, ...clients];
 
   return (
     <section style={{ padding: '32px 0 44px', background: 'var(--bg)', overflow: 'hidden', borderTop: '2px solid var(--line)' }}>
-      <p style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 22 }}>
+      <p style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 36 }}>
         Brands we&apos;ve worked with
       </p>
-      {enoughToScroll ? (
-        <div className="marquee-mask">
-          <div className="marquee-track">
-            {track.map((c, i) => (
-              <ClientItem key={`${c.id}-${i}`} c={c} />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="wrap" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 56 }}>
-          {track.map((c) => (
-            <ClientItem key={c.id} c={c} />
+      <div className="marquee-mask">
+        <div className="marquee-track">
+          {track.map((c, i) => (
+            <ClientItem key={`${c.id}-${i}`} c={c} />
           ))}
         </div>
-      )}
+      </div>
     </section>
   );
 }
