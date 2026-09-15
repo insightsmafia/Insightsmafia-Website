@@ -547,10 +547,23 @@ h1, h2, h3 {
   gap: 56px;
   width: max-content;
   animation: marquee-scroll 26s linear infinite;
+  /* promotes this to its own GPU layer so the continuous transform doesn't
+     get repainted every frame — without it, some mobile browsers (iOS
+     Safari in particular) intermittently fail to repaint items mid-scroll,
+     making logos flicker/vanish for a frame or two. */
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
-.marquee-mask:hover .marquee-track {
-  animation-play-state: paused;
+/* `:hover` on a touchscreen gets "stuck" on from a tap or a scroll gesture
+   that passes over the marquee, and doesn't reliably release — pausing and
+   resuming the animation unpredictably, which reads as stuttering/jerking.
+   Scope the hover-pause to devices that have a real hover capability
+   (mouse/trackpad) so touch devices never trigger it. */
+@media (hover: hover) and (pointer: fine) {
+  .marquee-mask:hover .marquee-track {
+    animation-play-state: paused;
+  }
 }
 
 .marquee-item {
