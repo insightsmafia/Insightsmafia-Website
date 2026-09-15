@@ -1,4 +1,5 @@
 import Button from '@/components/ui/Button';
+import FloatingBadges from './FloatingBadges';
 import CapabilitiesMarquee from './CapabilitiesMarquee';
 
 export default function Hero() {
@@ -9,7 +10,10 @@ export default function Hero() {
     >
       {/* background blobs */}
       <div className="hero-blob-yellow" style={{ position: 'absolute', top: '-10%', right: '-10%', borderRadius: '50%', background: 'var(--yellow)', opacity: 0.35, filter: 'blur(2px)' }} />
-      <div className="hero-blob-purple" style={{ position: 'absolute', bottom: '-15%', left: '-10%', borderRadius: '50%', background: 'var(--purple)', opacity: 0.15 }} />
+      <div style={{ position: 'absolute', bottom: '-15%', left: '-10%', width: 420, height: 420, borderRadius: '50%', background: 'var(--purple)', opacity: 0.15 }} />
+
+      {/* desktop-only floating badges; mobile shows the marquee below instead */}
+      <FloatingBadges />
 
       <div className="wrap" style={{ position: 'relative', zIndex: 2, maxWidth: 680 }}>
         <p style={{ display: 'inline-block', background: 'var(--yellow)', border: '2px solid var(--ink)', borderRadius: 100, padding: '6px 16px', fontWeight: 700, fontSize: 13.5, transform: 'rotate(-2deg)', marginBottom: 28 }}>
@@ -28,7 +32,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div style={{ position: 'relative', zIndex: 2, marginTop: 48 }}>
+      <div className="hero-marquee-mobile" style={{ position: 'relative', zIndex: 2 }}>
         <CapabilitiesMarquee />
       </div>
     </section>

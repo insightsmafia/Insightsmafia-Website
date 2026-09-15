@@ -226,30 +226,28 @@ h1, h2, h3 {
   }
 }
 
-/* ---- hero: simple headline/subtext/CTA hero, no floating badges anymore —
-   the capability pills live in their own marquee row right below the CTAs
-   instead, so desktop no longer needs to reserve tall padding zones for
-   scattered badges. ---- */
+/* ---- hero: desktop keeps the original floating-badges layout (scattered
+   badges need the taller 92vh hero they were positioned against); mobile
+   instead shows the capabilities marquee below the CTAs, full-screen. ---- */
 .hero-section {
-  padding-top: 56px;
-  padding-bottom: 48px;
+  display: flex;
+  align-items: center;
+  padding-top: 90px;
+  min-height: 92vh;
 }
 
 .hero-blob-yellow {
-  width: 420px;
-  height: 420px;
+  width: 480px;
+  height: 480px;
 }
 
-.hero-blob-purple {
-  width: 360px;
-  height: 360px;
+/* mobile-only: the capabilities marquee replaces the floating badges below */
+.hero-marquee-mobile {
+  display: none;
 }
 
 @media (max-width: 768px) {
-  /* mobile keeps the original full-screen hero: fills the viewport with the
-     content + marquee block vertically centered inside it, same as before */
   .hero-section {
-    display: flex;
     flex-direction: column;
     justify-content: center;
     min-height: 100vh;
@@ -263,10 +261,69 @@ h1, h2, h3 {
     height: 260px;
   }
 
-  .hero-blob-purple {
-    width: 220px;
-    height: 220px;
+  .hero-marquee-mobile {
+    display: block;
   }
+
+  /* desktop-only floating badges — mobile uses the marquee instead */
+  .floating-badges {
+    display: none;
+  }
+}
+
+/* ---- floating hero badges (desktop only — see .floating-badges above).
+   Position is set via custom properties so inline JS-driven transform
+   (parallax + rotate) never fights the CSS position. A separate outer
+   wrapper carries a gentle bob so it composes independently of that
+   inline transform. ---- */
+.floating-badge {
+  position: absolute;
+  top: var(--top-desktop);
+  left: var(--left-desktop);
+  animation: badge-bob 3.4s ease-in-out infinite;
+  animation-delay: var(--bob-delay, 0s);
+}
+
+@keyframes badge-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-badge {
+    animation: none;
+  }
+}
+
+/* ---- floating badges are links. `transform` on this exact element is
+   already owned by the mousemove-driven parallax/rotate (set via inline
+   style in JS), so hover feedback deliberately avoids `transform` entirely
+   — a scale() here would either fight the JS-set value or get silently
+   overwritten by the next mousemove tick. box-shadow + brightness give the
+   same "this is interactive" cue without touching that property.
+   Everything static lives here rather than as inline styles specifically
+   so :hover can actually win the cascade — an inline box-shadow would
+   always beat a stylesheet :hover rule regardless of specificity. ---- */
+.floating-badge-link {
+  display: inline-block;
+  background: var(--badge-color);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 9px 16px;
+  border-radius: 100px;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  white-space: nowrap;
+  text-decoration: none;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.05s linear, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.floating-badge-link:hover {
+  box-shadow: 6px 6px 0 var(--ink);
+  filter: brightness(1.08);
 }
 
 /* ---- logo: SF Pro semibold wordmark, flat, no border/shadow ---- */
