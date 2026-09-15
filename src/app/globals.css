@@ -90,6 +90,19 @@ h1, h2, h3 {
   }
 }
 
+/* ---- services section: less top padding than the default .section-pad —
+   the marquee above it already has its own bottom padding, so stacking the
+   full section-pad top padding on top of that left too much dead space. ---- */
+.services-section {
+  padding-top: 48px;
+}
+
+@media (max-width: 640px) {
+  .services-section {
+    padding-top: 32px;
+  }
+}
+
 /* ---- tile-grid: services / work / testimonial / faq cards. On mobile a
    single-column grid stretches the card to the full wrap width, making it
    look "fit to edges" with no breathing room — add a bit of inset there. ---- */

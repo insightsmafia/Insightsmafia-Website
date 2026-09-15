@@ -9,7 +9,7 @@ export default async function ServicesList() {
   const services = await prisma.service.findMany({ where: { published: true }, orderBy: { order: 'asc' } });
 
   return (
-    <section className="section-pad" id="services">
+    <section className="section-pad services-section" id="services">
       <div className="wrap">
         <Reveal>
           <h2 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, marginBottom: 12 }}>Six disciplines. One team.</h2>
