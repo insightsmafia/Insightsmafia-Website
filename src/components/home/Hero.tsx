@@ -1,10 +1,11 @@
 import Button from '@/components/ui/Button';
+import CapabilitiesMarquee from './CapabilitiesMarquee';
 
 export default function Hero() {
   return (
     <section
       className="section-pad hero-section"
-      style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center' }}
+      style={{ position: 'relative', overflow: 'hidden' }}
     >
       {/* background blobs */}
       <div className="hero-blob-yellow" style={{ position: 'absolute', top: '-10%', right: '-10%', borderRadius: '50%', background: 'var(--yellow)', opacity: 0.35, filter: 'blur(2px)' }} />
@@ -25,6 +26,10 @@ export default function Hero() {
           <Button href="#work">See the work</Button>
           <Button href="/lets-create" variant="primary">Let&apos;s Create</Button>
         </div>
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 2, marginTop: 48 }}>
+        <CapabilitiesMarquee />
       </div>
     </section>
   );

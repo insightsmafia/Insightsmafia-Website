@@ -227,8 +227,9 @@ h1, h2, h3 {
 }
 
 /* ---- hero: simple headline/subtext/CTA hero, no floating badges anymore —
-   the capability pills live in their own marquee row below instead, so this
-   section no longer needs to reserve tall padding zones for them. ---- */
+   the capability pills live in their own marquee row right below the CTAs
+   instead, so desktop no longer needs to reserve tall padding zones for
+   scattered badges. ---- */
 .hero-section {
   padding-top: 56px;
   padding-bottom: 48px;
@@ -245,9 +246,16 @@ h1, h2, h3 {
 }
 
 @media (max-width: 768px) {
+  /* mobile keeps the original full-screen hero: fills the viewport with the
+     content + marquee block vertically centered inside it, same as before */
   .hero-section {
-    padding-top: 40px;
-    padding-bottom: 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding-top: 96px;
+    padding-bottom: 40px;
   }
 
   .hero-blob-yellow {
@@ -510,7 +518,6 @@ h1, h2, h3 {
   border: 2px solid var(--ink);
   box-shadow: 4px 4px 0 var(--ink);
   white-space: nowrap;
-  transform: rotate(var(--pill-rotate, 0deg));
 }
 
 @media (prefers-reduced-motion: reduce) {
