@@ -247,12 +247,27 @@ h1, h2, h3 {
   display: none;
 }
 
+.hero-top-spacer {
+  display: none;
+}
+
 @media (max-width: 768px) {
   /* height is the viewport minus the sticky header's own height (not a flat
      100vh) so the hero ends exactly at the fold — no leftover hero peeking
-     above the next section, and scrolling reveals it immediately. */
+     above the next section, and scrolling reveals it immediately.
+
+     Grid (not flex) for the vertical layout: a 3-row track of
+     minmax(0,1fr) / auto / minmax(0,1fr) gives the top spacer and the
+     badges row genuinely equal heights — flexbox's automatic minimum size
+     kept inflating the badges row by its content's height even at
+     flex-basis:0 and min-height:0, throwing off the 1:1 split; grid's
+     explicit minmax(0, 1fr) doesn't have that quirk. Equal heights on
+     those two rows is what keeps the text vertically centered in the hero
+     while the badges line centers within its own (now equal) row. */
   .hero-section {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
     min-height: calc(100vh - var(--header-h, 76px));
     min-height: calc(100svh - var(--header-h, 76px));
     padding-top: 20px;
@@ -264,15 +279,14 @@ h1, h2, h3 {
     height: 260px;
   }
 
-  /* flex:1 lets this absorb whatever vertical space is left below the CTAs
-     (hero-section's min-height minus the content's own height) and center
-     the badges line within exactly that leftover zone — margin-top keeps a
-     minimum gap off the CTAs even when there's barely any space left over. */
+  .hero-top-spacer {
+    display: block;
+  }
+
   .hero-badges-mobile {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1;
     margin-top: 22px;
   }
 
@@ -586,6 +600,10 @@ h1, h2, h3 {
 
 .pill-track {
   gap: 18px;
+  /* slower than the default 16s — with only 5 unique pills the loop point
+     comes around quickly at that speed and reads as a restart rather than
+     continuous motion */
+  animation-duration: 26s;
 }
 
 .capability-pill {

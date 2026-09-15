@@ -1,9 +1,13 @@
+// Colors are ordered so no two are the same back to back — including at the
+// seam where the track duplicates (last item here is followed by the first
+// item of the next copy), otherwise the loop shows two same-colored pills
+// sitting next to each other.
 const capabilities = [
   { label: 'Film & Ad Shoots', color: 'var(--coral)' },
   { label: 'Social Media', color: 'var(--purple)' },
   { label: 'Web Dev', color: 'var(--yellow)' },
-  { label: 'Performance Ads', color: 'var(--purple)' },
-  { label: 'Branding', color: 'var(--coral)' },
+  { label: 'Performance Ads', color: 'var(--coral)' },
+  { label: 'Branding', color: 'var(--purple)' },
 ];
 
 // Mobile-only: a single continuously auto-scrolling line below the hero

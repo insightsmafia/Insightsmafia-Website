@@ -15,6 +15,10 @@ export default function Hero() {
       {/* desktop-only floating badges; mobile shows the static row below instead */}
       <FloatingBadges />
 
+      {/* mobile-only: balances .hero-badges-mobile's flex:1 below so the text
+          block ends up vertically centered in the hero, not pinned to the top */}
+      <div className="hero-top-spacer" aria-hidden="true" />
+
       <div className="wrap" style={{ position: 'relative', zIndex: 2, maxWidth: 680 }}>
         <p style={{ display: 'inline-block', background: 'var(--yellow)', border: '2px solid var(--ink)', borderRadius: 100, padding: '6px 16px', fontWeight: 700, fontSize: 13.5, transform: 'rotate(-2deg)', marginBottom: 28 }}>
           You Dream. We Create!
