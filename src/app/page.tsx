@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Hero from '@/components/home/Hero';
+import CapabilitiesMarquee from '@/components/home/CapabilitiesMarquee';
 import ClientsMarquee from '@/components/home/ClientsMarquee';
 import ServicesList from '@/components/home/ServicesList';
 import WorkGrid from '@/components/home/WorkGrid';
@@ -22,6 +23,7 @@ export default function HomePage() {
     <>
       <Header />
       <Hero />
+      <CapabilitiesMarquee />
       <ClientsMarquee />
       <ServicesList />
       <WorkGrid />

@@ -1,5 +1,4 @@
 import Button from '@/components/ui/Button';
-import FloatingBadges from './FloatingBadges';
 
 export default function Hero() {
   return (
@@ -9,9 +8,7 @@ export default function Hero() {
     >
       {/* background blobs */}
       <div className="hero-blob-yellow" style={{ position: 'absolute', top: '-10%', right: '-10%', borderRadius: '50%', background: 'var(--yellow)', opacity: 0.35, filter: 'blur(2px)' }} />
-      <div style={{ position: 'absolute', bottom: '-15%', left: '-10%', width: 420, height: 420, borderRadius: '50%', background: 'var(--purple)', opacity: 0.15 }} />
-
-      <FloatingBadges />
+      <div className="hero-blob-purple" style={{ position: 'absolute', bottom: '-15%', left: '-10%', borderRadius: '50%', background: 'var(--purple)', opacity: 0.15 }} />
 
       <div className="wrap" style={{ position: 'relative', zIndex: 2, maxWidth: 680 }}>
         <p style={{ display: 'inline-block', background: 'var(--yellow)', border: '2px solid var(--ink)', borderRadius: 100, padding: '6px 16px', fontWeight: 700, fontSize: 13.5, transform: 'rotate(-2deg)', marginBottom: 28 }}>

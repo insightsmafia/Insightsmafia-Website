@@ -34,7 +34,7 @@ export default async function ClientsMarquee() {
   const track = enoughToScroll ? [...clients, ...clients] : clients;
 
   return (
-    <section style={{ padding: '44px 0', background: 'var(--bg)', overflow: 'hidden' }}>
+    <section style={{ padding: '32px 0 44px', background: 'var(--bg)', overflow: 'hidden', borderTop: '2px solid var(--line)' }}>
       <p style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 22 }}>
         Brands we&apos;ve worked with
       </p>

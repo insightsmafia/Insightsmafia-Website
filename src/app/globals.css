@@ -226,101 +226,39 @@ h1, h2, h3 {
   }
 }
 
-/* ---- hero: mobile-only adjustments (768px and below only, desktop untouched) ---- */
+/* ---- hero: simple headline/subtext/CTA hero, no floating badges anymore —
+   the capability pills live in their own marquee row below instead, so this
+   section no longer needs to reserve tall padding zones for them. ---- */
 .hero-section {
-  padding-top: 90px;
-  min-height: 92vh;
+  padding-top: 56px;
+  padding-bottom: 48px;
 }
 
 .hero-blob-yellow {
-  width: 480px;
-  height: 480px;
+  width: 420px;
+  height: 420px;
+}
+
+.hero-blob-purple {
+  width: 360px;
+  height: 360px;
 }
 
 @media (max-width: 768px) {
   .hero-section {
-    /* min-height is intentionally dropped here (not just shrunk): a vh-based
-       height combined with vertically-centered content makes the empty space
-       above/below the text scale with the DEVICE's height, not the content —
-       so any percentage-positioned badge that's "safe" on a tall phone lands
-       on a button on a short one. Fixed padding reserves deterministic zones
-       above/below the text for the badges instead, independent of viewport
-       height entirely. */
-    min-height: 0;
-    padding-top: 130px;
-    padding-bottom: 170px;
+    padding-top: 40px;
+    padding-bottom: 36px;
   }
 
   .hero-blob-yellow {
-    width: 312px;
-    height: 312px;
+    width: 260px;
+    height: 260px;
   }
-}
 
-/* ---- floating hero badges: two position sets (desktop scattered around the
-   text column, mobile confined to the safe strips above/below it) picked via
-   custom properties so inline JS-driven transform (parallax + rotate) never
-   fights the CSS position. A separate outer wrapper carries a gentle bob so
-   it composes independently of that inline transform. ---- */
-.floating-badge {
-  position: absolute;
-  top: var(--top-desktop);
-  left: var(--left-desktop);
-  bottom: auto;
-  animation: badge-bob 3.4s ease-in-out infinite;
-  animation-delay: var(--bob-delay, 0s);
-}
-
-@media (max-width: 768px) {
-  .floating-badge {
-    /* mobile badges anchor to whichever edge (top or bottom) is set per
-       badge below — the other is 'auto' so it doesn't fight the anchor */
-    top: var(--top-mobile, auto);
-    bottom: var(--bottom-mobile, auto);
-    left: var(--left-mobile);
+  .hero-blob-purple {
+    width: 220px;
+    height: 220px;
   }
-}
-
-@keyframes badge-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .floating-badge {
-    animation: none;
-  }
-}
-
-/* ---- floating badges are now links. `transform` on this exact element is
-   already owned by the mousemove-driven parallax/rotate (set via inline
-   style in JS), so hover feedback deliberately avoids `transform` entirely
-   — a scale() here would either fight the JS-set value or get silently
-   overwritten by the next mousemove tick. box-shadow + brightness give the
-   same "this is interactive" cue without touching that property.
-   Everything static lives here rather than as inline styles specifically
-   so :hover can actually win the cascade — an inline box-shadow would
-   always beat a stylesheet :hover rule regardless of specificity. ---- */
-.floating-badge-link {
-  display: inline-block;
-  background: var(--badge-color);
-  color: #fff;
-  font-weight: 700;
-  font-size: 13.5px;
-  padding: 9px 16px;
-  border-radius: 100px;
-  border: 2px solid var(--ink);
-  box-shadow: 4px 4px 0 var(--ink);
-  white-space: nowrap;
-  text-decoration: none;
-  pointer-events: auto;
-  cursor: pointer;
-  transition: transform 0.05s linear, box-shadow 0.15s ease, filter 0.15s ease;
-}
-
-.floating-badge-link:hover {
-  box-shadow: 6px 6px 0 var(--ink);
-  filter: brightness(1.08);
 }
 
 /* ---- logo: SF Pro semibold wordmark, flat, no border/shadow ---- */
@@ -552,6 +490,27 @@ h1, h2, h3 {
   .marquee-track {
     animation: none;
   }
+}
+
+/* ---- capabilities marquee: same auto-scroll pattern as the clients marquee
+   above it, just a tighter gap since pills are compact text rather than
+   logo images. Plain non-interactive pills — no link, no hover state. ---- */
+.pill-track {
+  gap: 18px;
+}
+
+.capability-pill {
+  display: inline-block;
+  background: var(--pill-color);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 9px 18px;
+  border-radius: 100px;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  white-space: nowrap;
+  transform: rotate(var(--pill-rotate, 0deg));
 }
 
 @media (prefers-reduced-motion: reduce) {
