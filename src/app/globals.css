@@ -549,20 +549,6 @@ h1, h2, h3 {
   animation: marquee-scroll 26s linear infinite;
 }
 
-/* client logos aren't duplicated in the DOM (unlike the hero's pill track),
-   so the 0%->-50% loop trick doesn't apply here — instead the real, un-
-   duplicated list just slides fully across from right to left and repeats.
-   As more logos get published the track naturally gets wider and fills the
-   loop out on its own, no code change needed. */
-.client-track {
-  animation-name: marquee-slide;
-}
-
-@keyframes marquee-slide {
-  from { transform: translateX(100%); }
-  to { transform: translateX(-100%); }
-}
-
 .marquee-mask:hover .marquee-track {
   animation-play-state: paused;
 }
