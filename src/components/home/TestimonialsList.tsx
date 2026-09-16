@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import Reveal from '@/components/ui/Reveal';
 import Button from '@/components/ui/Button';
+import { proxyImage } from '@/lib/imageProxy';
 
 const tiltFor = (i: number) => [-2, 1.5, -1, 2][i % 4];
 const colorFor = (i: number) => ['var(--coral)', 'var(--yellow)', 'var(--purple)'][i % 3];
@@ -26,8 +27,22 @@ export default async function TestimonialsList({ limit, showAllLink }: { limit?:
               </div>
             )}
             <p style={{ fontSize: 15.5, lineHeight: 1.6, marginBottom: 18 }}>&ldquo;{t.quote}&rdquo;</p>
-            <div style={{ fontWeight: 700, fontSize: 14.5 }}>{t.author}</div>
-            {t.roleCompany && <div style={{ color: 'var(--muted)', fontSize: 13 }}>{t.roleCompany}</div>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              {t.photo && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={proxyImage(t.photo)}
+                  alt={t.author}
+                  width={40}
+                  height={40}
+                  style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--ink)', flexShrink: 0 }}
+                />
+              )}
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14.5 }}>{t.author}</div>
+                {t.roleCompany && <div style={{ color: 'var(--muted)', fontSize: 13 }}>{t.roleCompany}</div>}
+              </div>
+            </div>
           </div>
         </Reveal>
       ))}
