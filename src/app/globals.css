@@ -389,9 +389,9 @@ h1, h2, h3 {
 
 .nav-toggle span {
   display: block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
   background: var(--ink);
 }
 
@@ -407,6 +407,16 @@ h1, h2, h3 {
 
   .nav-toggle {
     display: flex;
+  }
+
+  /* Only the logo and toggle are visible below this width, so plain
+     space-between is unambiguous here (unlike the 3-column desktop grid,
+     which exists specifically to true-center the nav links) - logo stays
+     left (DOM order), toggle stays right. */
+  .header-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   /* Same grid-template-rows 0fr->1fr fold used by the FAQ accordion, so the
