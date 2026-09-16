@@ -10,7 +10,7 @@ const steps = [
 
 export default function Process() {
   return (
-    <section className="section-pad" id="process">
+    <section className="section-pad" id="process" style={{ borderTop: '2px solid var(--ink)' }}>
       <div className="wrap">
         <Reveal>
           <h2 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, marginBottom: 56 }}>How a project moves</h2>

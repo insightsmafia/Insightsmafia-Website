@@ -13,7 +13,7 @@ export default async function TestimonialsFaqSection() {
   if (testimonials.length === 0 && faqCount === 0) return null;
 
   return (
-    <section className="section-pad" id="faq" style={{ background: 'var(--surface)', borderTop: '2px solid var(--ink)' }}>
+    <section className="section-pad" id="faq" style={{ background: 'var(--surface)' }}>
       <div className="wrap">
         <div className="split-screen">
           <div>

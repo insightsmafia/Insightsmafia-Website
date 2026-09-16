@@ -30,7 +30,7 @@ export default function ContactSection({ contactEmail }: { contactEmail?: string
   }
 
   return (
-    <section className="section-pad" id="contact" style={{ background: 'var(--surface)', borderTop: '2px solid var(--ink)' }}>
+    <section className="section-pad" id="contact" style={{ background: 'var(--surface)' }}>
       <div className="wrap" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 56 }}>
         <div>
           <h2 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, marginBottom: 16 }}>Ready to move faster?</h2>

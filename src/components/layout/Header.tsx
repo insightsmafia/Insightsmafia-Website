@@ -10,11 +10,10 @@ const links = [
   { href: '/why-us', label: 'Why Us?' },
 ];
 
-type MenuState = 'closed' | 'open' | 'closing';
-
 export default function Header() {
   const headerRef = useRef<HTMLElement>(null);
-  const [menuState, setMenuState] = useState<MenuState>('closed');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
 
   useEffect(() => {
     const el = headerRef.current;
@@ -28,21 +27,52 @@ export default function Header() {
     const ro = new ResizeObserver(syncHeight);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [menuState]);
+  }, [menuOpen]);
 
   useEffect(() => {
-    setMenuState('closed');
+    setMenuOpen(false);
   }, []);
 
   useEffect(() => {
-    if (menuState !== 'open') return;
-    const onScroll = () => setMenuState('closing');
+    if (!menuOpen) return;
+    const onScroll = () => setMenuOpen(false);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [menuState]);
+  }, [menuOpen]);
+
+  // Hide the bar on any meaningful downward scroll, bring it back on the
+  // slightest upward scroll - and always show it near the very top.
+  useEffect(() => {
+    let lastY = window.scrollY;
+    function onScroll() {
+      const y = window.scrollY;
+      const delta = y - lastY;
+      if (y < 60) {
+        setNavHidden(false);
+      } else if (delta > 8) {
+        setNavHidden(true);
+      } else if (delta < -1) {
+        setNavHidden(false);
+      }
+      lastY = y;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
-    <header ref={headerRef} style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--bg)', borderBottom: '2px solid var(--ink)' }}>
+    <header
+      ref={headerRef}
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        background: 'var(--bg)',
+        borderBottom: '2px solid var(--ink)',
+        transform: navHidden ? 'translateY(-100%)' : 'translateY(0)',
+        transition: 'transform 0.3s ease',
+      }}
+    >
       <div className="header-wrap" style={{ paddingTop: 14, paddingBottom: 14 }}>
         <a href="/" aria-label="Insights Mafia" style={{ textDecoration: 'none' }}>
           <Logo showTagline={false} />
@@ -62,8 +92,8 @@ export default function Header() {
             type="button"
             className="nav-toggle"
             aria-label="Toggle menu"
-            aria-expanded={menuState === 'open'}
-            onClick={() => setMenuState((s) => (s === 'closed' ? 'open' : 'closing'))}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
           >
             <span />
             <span />
@@ -71,26 +101,25 @@ export default function Header() {
           </button>
         </div>
       </div>
-      {menuState !== 'closed' && (
-        <div
-          className={`mobile-menu${menuState === 'closing' ? ' is-closing' : ''}`}
-          onAnimationEnd={() => setMenuState((s) => (s === 'closing' ? 'closed' : s))}
-        >
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                onClick={() => setMenuState('closing')}
-                style={{ fontWeight: 700, fontSize: 16, textDecoration: 'none', padding: '12px 0' }}
-              >
-                {l.label}
-              </a>
-            ))}
-          </nav>
-          <Button href="/lets-create" variant="primary">Let&apos;s Create</Button>
+      <div className={`mobile-menu-fold${menuOpen ? ' open' : ''}`}>
+        <div className="mobile-menu-fold-inner">
+          <div className="mobile-menu">
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {links.map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMenuOpen(false)}
+                  style={{ fontWeight: 700, fontSize: 16, textDecoration: 'none', padding: '12px 0' }}
+                >
+                  {l.label}
+                </a>
+              ))}
+            </nav>
+            <Button href="/lets-create" variant="primary">Let&apos;s Create</Button>
+          </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }

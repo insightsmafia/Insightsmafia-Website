@@ -395,7 +395,7 @@ h1, h2, h3 {
   background: var(--ink);
 }
 
-.mobile-menu {
+.mobile-menu-fold {
   display: none;
 }
 
@@ -409,6 +409,23 @@ h1, h2, h3 {
     display: flex;
   }
 
+  /* Same grid-template-rows 0fr->1fr fold used by the FAQ accordion, so the
+     menu unfolds/collapses smoothly instead of just fading+nudging in place. */
+  .mobile-menu-fold {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mobile-menu-fold.open {
+    grid-template-rows: 1fr;
+  }
+
+  .mobile-menu-fold-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+
   .mobile-menu {
     display: flex;
     flex-direction: column;
@@ -416,34 +433,12 @@ h1, h2, h3 {
     padding: 8px 24px 24px;
     border-top: 2px solid var(--ink);
     background: var(--bg);
-    transform-origin: top;
-    animation: mobile-menu-in 180ms ease;
-  }
-
-  .mobile-menu.is-closing {
-    animation: mobile-menu-out 200ms ease forwards;
   }
 }
 
-@keyframes mobile-menu-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes mobile-menu-out {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-10px);
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu-fold {
+    transition: none;
   }
 }
 
