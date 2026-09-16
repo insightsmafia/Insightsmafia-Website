@@ -29,7 +29,7 @@ export default async function Footer() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 40, marginBottom: 40 }}>
           <div>
             <Logo size="sm" showTagline={false} />
-            <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6, marginTop: 16, maxWidth: 260 }}>{settings.tagline}</p>
+            <p className="footer-tagline" style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6, marginTop: 16, maxWidth: 260 }}>{settings.tagline}</p>
             {socialEntries.length > 0 && (
               <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
                 {socialEntries.map(([key, url]) => {

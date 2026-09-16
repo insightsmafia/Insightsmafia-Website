@@ -43,7 +43,7 @@ export default function Header() {
 
   return (
     <header ref={headerRef} style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--bg)', borderBottom: '2px solid var(--ink)' }}>
-      <div className="header-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 14, paddingBottom: 14, gap: 24 }}>
+      <div className="header-wrap" style={{ paddingTop: 14, paddingBottom: 14 }}>
         <a href="/" aria-label="Insights Mafia" style={{ textDecoration: 'none' }}>
           <Logo showTagline={false} />
         </a>
@@ -54,20 +54,22 @@ export default function Header() {
             </a>
           ))}
         </nav>
-        <div className="nav-cta">
-          <Button href="/lets-create" variant="primary">Let&apos;s Create</Button>
+        <div className="header-actions">
+          <div className="nav-cta">
+            <Button href="/lets-create" variant="primary">Let&apos;s Create</Button>
+          </div>
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-label="Toggle menu"
+            aria-expanded={menuState === 'open'}
+            onClick={() => setMenuState((s) => (s === 'closed' ? 'open' : 'closing'))}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
-        <button
-          type="button"
-          className="nav-toggle"
-          aria-label="Toggle menu"
-          aria-expanded={menuState === 'open'}
-          onClick={() => setMenuState((s) => (s === 'closed' ? 'open' : 'closing'))}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
       </div>
       {menuState !== 'closed' && (
         <div

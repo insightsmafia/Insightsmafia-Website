@@ -61,10 +61,25 @@ h1, h2, h3 {
 }
 
 /* ---- header-wrap: spans the true viewport edges (no 1180px cap) so the logo
-   and CTA sit at the actual screen edges instead of a centered column ---- */
+   and CTA sit at the actual screen edges instead of a centered column.
+   A 3-column grid (not flex space-between) so the middle nav links sit at
+   the true horizontal center of the bar - space-between only splits the
+   leftover gap between the logo and CTA, which drifts off-center whenever
+   those two are different widths (they always are here). ---- */
 .header-wrap {
   width: 100%;
   padding: 0 72px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 24px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 24px;
 }
 
 @media (max-width: 860px) {
@@ -626,6 +641,12 @@ h1, h2, h3 {
   border-color: var(--purple);
   color: #fff;
   transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+  .footer-tagline {
+    display: none;
+  }
 }
 
 /* ---- seo request-indexing rows: dim siblings on hover so it's clear which row a click targets ---- */
