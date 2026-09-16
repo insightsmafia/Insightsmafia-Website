@@ -61,52 +61,33 @@ const icons: Record<string, JSX.Element> = {
 };
 
 export default function WorkCategoryTile({ slug, label, i }: { slug: string; label: string; i: number }) {
+  const color = bgFor(i);
   return (
     <Link
       href={`/work/${slug}`}
-      className="card-flat svc-card"
-      style={{
-        position: 'relative',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        aspectRatio: '4/3',
-        padding: 20,
-        textDecoration: 'none',
-        color: 'var(--ink)',
-        background: 'var(--surface)',
-        ['--accent' as string]: 'var(--ink)',
-      } as React.CSSProperties}
+      className="card-flat svc-card work-tile"
+      style={{ ['--accent' as string]: color } as React.CSSProperties}
     >
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          width: 92,
-          height: 92,
-          borderRadius: '50%',
-          background: bgFor(i),
-          opacity: 0.9,
-          zIndex: 0,
-          ...blobCorner[blobPattern[i % blobPattern.length]],
-        }}
-      />
-      <svg
-        width="34"
-        height="34"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        style={{ position: 'relative', zIndex: 1 }}
-      >
-        {icons[slug]}
-      </svg>
-      <div style={{ position: 'relative', zIndex: 1, fontSize: 15, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-        {label}
+      <div className="work-tile-blob" aria-hidden="true" style={{ background: color, ...blobCorner[blobPattern[i % blobPattern.length]] }} />
+
+      <div className="work-tile-icon-wrap">
+        <span className="work-tile-icon-bg" style={{ background: color }} />
+        <svg
+          className="work-tile-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {icons[slug]}
+        </svg>
+      </div>
+
+      <div className="work-tile-bottom">
+        <div className="work-tile-label">{label}</div>
+        <span className="work-tile-arrow" aria-hidden="true">→</span>
       </div>
     </Link>
   );

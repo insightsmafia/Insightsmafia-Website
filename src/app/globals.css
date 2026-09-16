@@ -230,6 +230,124 @@ h1, h2, h3 {
   box-shadow: 1px 1px 0 var(--accent);
 }
 
+/* ---- work-tile: the 8 discipline cards on the homepage "What we did?" teaser
+   and the /work page. Desktop keeps the full card (icon chip, corner blob,
+   label + arrow); below 860px (this project's mobile-nav breakpoint) it
+   collapses to a compact icon-left/label-right row so eight tiles don't turn
+   into a long scroll of near-empty boxes on a phone. ---- */
+.work-tile {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  aspect-ratio: 4/3;
+  padding: 22px;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.work-tile-blob {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  opacity: 0.9;
+  z-index: 0;
+}
+
+.work-tile-icon-wrap {
+  position: relative;
+  z-index: 1;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.work-tile-icon-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  opacity: 0.16;
+}
+
+.work-tile-icon {
+  position: relative;
+  width: 42px;
+  height: 42px;
+}
+
+.work-tile-bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.work-tile-label {
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.work-tile-arrow {
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 860px) {
+  .work-tile {
+    aspect-ratio: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    box-shadow: 3px 3px 0 var(--accent) !important;
+  }
+
+  .work-tile:hover,
+  .work-tile:active {
+    transform: none !important;
+  }
+
+  .work-tile-blob {
+    display: none;
+  }
+
+  .work-tile-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .work-tile-icon-bg {
+    border-radius: 12px;
+  }
+
+  .work-tile-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .work-tile-bottom {
+    flex: 1;
+  }
+
+  .work-tile-arrow {
+    display: none;
+  }
+}
+
 /* ---- header nav: hamburger below 860px so the bar never overflows ---- */
 .nav-links {
   display: flex;
