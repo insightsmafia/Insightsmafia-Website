@@ -11,7 +11,6 @@ export default function AdminTestimonialsPage() {
         { name: 'author', label: 'Author name', type: 'text', required: true },
         { name: 'roleCompany', label: 'Role / company', type: 'text' },
         { name: 'quote', label: 'Quote', type: 'textarea', required: true },
-        { name: 'photo', label: 'Photo', type: 'image' },
         { name: 'rating', label: 'Rating (1-5)', type: 'number' },
         { name: 'order', label: 'Order', type: 'number' },
         { name: 'published', label: 'Published', type: 'checkbox' },
