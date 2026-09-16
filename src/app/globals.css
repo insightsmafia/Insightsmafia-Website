@@ -112,6 +112,46 @@ h1, h2, h3 {
   }
 }
 
+/* ---- testimonial roller: homepage shows one testimonial at a time inside a
+   fixed-height window; the track holds every testimonial (plus a duplicate
+   of the first at the end) and steps up by one card height every few
+   seconds, landing back on the duplicate's identical twin at index 0 so the
+   loop wraps with no visible jump - like a roller/reel. ---- */
+.testimonial-roller {
+  height: 300px;
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+.testimonial-roller-track {
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial-roller-card {
+  height: 300px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.testimonial-roller-card p {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .testimonial-roller,
+  .testimonial-roller-card {
+    height: 260px;
+  }
+}
+
 /* ---- buttons: chunky, outlined, hard offset shadow, press-down on click ---- */
 .btn {
   display: inline-flex;

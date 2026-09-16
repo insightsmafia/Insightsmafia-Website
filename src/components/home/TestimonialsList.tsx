@@ -2,7 +2,6 @@ import { prisma } from '@/lib/db';
 import Reveal from '@/components/ui/Reveal';
 import Button from '@/components/ui/Button';
 
-const tiltFor = (i: number) => [-2, 1.5, -1, 2][i % 4];
 const colorFor = (i: number) => ['var(--coral)', 'var(--yellow)', 'var(--purple)'][i % 3];
 
 export default async function TestimonialsList({ limit, showAllLink }: { limit?: number; showAllLink?: boolean }) {
@@ -18,7 +17,7 @@ export default async function TestimonialsList({ limit, showAllLink }: { limit?:
     <div className="tile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 28 }}>
       {testimonials.map((t, i) => (
         <Reveal key={t.id} delay={i * 80}>
-          <div className="card-flat" style={{ padding: 26, height: '100%', transform: `rotate(${tiltFor(i)}deg)`, boxShadow: `6px 6px 0 ${colorFor(i)}` }}>
+          <div className="card-flat" style={{ padding: 26, height: '100%', boxShadow: `6px 6px 0 ${colorFor(i)}` }}>
             {t.rating && (
               <div style={{ color: 'var(--yellow)', fontSize: 15, marginBottom: 12, letterSpacing: 2 }}>
                 {'★'.repeat(Math.max(0, Math.min(5, t.rating)))}
