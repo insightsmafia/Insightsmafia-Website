@@ -1,10 +1,10 @@
 export const workCategories = [
-  'Film Making',
-  'Ad Production',
-  'UGC Content',
-  'Branding and Logo',
-  'Web Development',
-  'Performance Marketing',
-  'Creative Visuals',
-  'Reels & Shorts',
+  { slug: 'film-making', label: 'Film Making' },
+  { slug: 'ad-production', label: 'Ad Production' },
+  { slug: 'ugc-content', label: 'UGC Content' },
+  { slug: 'branding-and-logo', label: 'Branding and Logo' },
+  { slug: 'web-development', label: 'Web Development' },
+  { slug: 'performance-marketing', label: 'Performance Marketing' },
+  { slug: 'creative-visuals', label: 'Creative Visuals' },
+  { slug: 'reels-and-shorts', label: 'Reels & Shorts' },
 ];

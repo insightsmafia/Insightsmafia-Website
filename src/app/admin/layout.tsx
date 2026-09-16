@@ -3,12 +3,15 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Logo from '@/components/ui/Logo';
+import { workCategories } from '@/lib/workCategories';
 
-const nav = [
+const navBefore = [
   { href: '/admin', label: 'Dashboard' },
   { href: '/admin/leads', label: 'Leads' },
   { href: '/admin/services', label: 'Services' },
-  { href: '/admin/projects', label: 'Work / Projects' },
+];
+
+const navAfter = [
   { href: '/admin/testimonials', label: 'Testimonials' },
   { href: '/admin/team', label: 'Team' },
   { href: '/admin/faq', label: 'FAQs' },
@@ -17,10 +20,23 @@ const nav = [
   { href: '/admin/settings', label: 'Settings' },
 ];
 
+function navLinkStyle(active: boolean) {
+  return {
+    padding: '10px 12px',
+    borderRadius: 8,
+    fontWeight: 600,
+    fontSize: 14.5,
+    textDecoration: 'none',
+    background: active ? 'var(--purple)' : 'transparent',
+    color: active ? '#fff' : 'var(--ink)',
+  } as const;
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [ready, setReady] = useState(false);
+  const [workOpen, setWorkOpen] = useState(false);
 
   useEffect(() => {
     if (pathname === '/admin/login') {
@@ -35,8 +51,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [pathname, router]);
 
+  useEffect(() => {
+    if (pathname.startsWith('/admin/work')) setWorkOpen(true);
+  }, [pathname]);
+
   if (pathname === '/admin/login') return <>{children}</>;
   if (!ready) return null;
+
+  const workActive = pathname.startsWith('/admin/work');
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
@@ -57,20 +79,60 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </svg>
         </a>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {nav.map((n) => (
-            <a
-              key={n.href}
-              href={n.href}
-              style={{
-                padding: '10px 12px',
-                borderRadius: 8,
-                fontWeight: 600,
-                fontSize: 14.5,
-                textDecoration: 'none',
-                background: pathname === n.href ? 'var(--purple)' : 'transparent',
-                color: pathname === n.href ? '#fff' : 'var(--ink)',
-              }}
-            >
+          {navBefore.map((n) => (
+            <a key={n.href} href={n.href} style={navLinkStyle(pathname === n.href)}>
+              {n.label}
+            </a>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => setWorkOpen((v) => !v)}
+            style={{
+              ...navLinkStyle(workActive),
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              textAlign: 'left',
+            }}
+          >
+            Work / Projects
+            <span style={{ display: 'inline-block', transform: workOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s ease' }}>
+              ›
+            </span>
+          </button>
+          {workOpen && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginLeft: 10, paddingLeft: 10, borderLeft: '2px solid var(--line)' }}>
+              {workCategories.map((c) => {
+                const href = `/admin/work/${c.slug}`;
+                const active = pathname === href;
+                return (
+                  <a
+                    key={c.slug}
+                    href={href}
+                    style={{
+                      padding: '8px 10px',
+                      borderRadius: 6,
+                      fontWeight: 600,
+                      fontSize: 13.5,
+                      textDecoration: 'none',
+                      background: active ? 'var(--purple)' : 'transparent',
+                      color: active ? '#fff' : 'var(--muted)',
+                    }}
+                  >
+                    {c.label}
+                  </a>
+                );
+              })}
+            </div>
+          )}
+
+          {navAfter.map((n) => (
+            <a key={n.href} href={n.href} style={navLinkStyle(pathname === n.href)}>
               {n.label}
             </a>
           ))}

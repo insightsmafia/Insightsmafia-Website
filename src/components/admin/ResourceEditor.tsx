@@ -10,6 +10,7 @@ export type Field =
   | { name: string; label: string; type: 'number' }
   | { name: string; label: string; type: 'checkbox' }
   | { name: string; label: string; type: 'image' }
+  | { name: string; label: string; type: 'imagelist' }
   | { name: string; label: string; type: 'select'; options: { value: string; label: string }[] };
 
 type Props = {
@@ -21,6 +22,8 @@ type Props = {
   getSubtitle?: (item: Item) => string;
   /** Enables drag-to-reorder handles on each row; persists the new `order` values on drop. */
   reorderable?: boolean;
+  /** Restricts the list (and everything derived from it) to items passing this check. */
+  filter?: (item: Item) => boolean;
 };
 
 function GripIcon() {
@@ -36,7 +39,7 @@ function authHeaders() {
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
 }
 
-export default function ResourceEditor({ resource, title, fields, defaults = {}, getLabel, getSubtitle, reorderable }: Props) {
+export default function ResourceEditor({ resource, title, fields, defaults = {}, getLabel, getSubtitle, reorderable, filter }: Props) {
   const endpoint = `/api/admin/${resource}`;
   const [items, setItems] = useState<Item[]>([]);
   const [editing, setEditing] = useState<Item | null>(null);
@@ -50,7 +53,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
     fetch(endpoint, { headers: authHeaders() })
       .then((r) => r.json())
       .then((json) => {
-        if (json.ok) setItems(json.items);
+        if (json.ok) setItems(filter ? json.items.filter(filter) : json.items);
         setLoading(false);
       });
   }
@@ -60,22 +63,32 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
   function openNew() {
     const blank: Item = { published: true, order: items.length };
     for (const f of fields) {
-      if (!(f.name in blank)) blank[f.name] = f.type === 'checkbox' ? false : f.type === 'number' ? 0 : '';
+      if (!(f.name in blank)) blank[f.name] = f.type === 'checkbox' ? false : f.type === 'number' ? 0 : f.type === 'imagelist' ? [] : '';
     }
     setEditing({ ...blank, ...defaults });
   }
 
   function openEdit(item: Item) {
-    setEditing({ ...item });
+    const draft = { ...item };
+    for (const f of fields) {
+      if (f.type === 'imagelist') {
+        try {
+          draft[f.name] = JSON.parse(item[f.name] || '[]');
+        } catch {
+          draft[f.name] = [];
+        }
+      }
+    }
+    setEditing(draft);
   }
 
   async function save() {
     if (!editing) return;
     setSaving(true);
-    const payload: Item = {};
+    const payload: Item = { ...defaults };
     for (const f of fields) {
       const v = editing[f.name];
-      payload[f.name] = f.type === 'number' ? Number(v || 0) : v;
+      payload[f.name] = f.type === 'number' ? Number(v || 0) : f.type === 'imagelist' ? JSON.stringify(v || []) : v;
     }
     if ('published' in editing) payload.published = editing.published;
     if ('order' in editing) payload.order = Number(editing.order || 0);
@@ -229,6 +242,42 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                     />
                   ) : f.type === 'image' ? (
                     <ImageUploadField value={editing[f.name] ?? ''} onChange={(url) => setEditing({ ...editing, [f.name]: url })} />
+                  ) : f.type === 'imagelist' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {((editing[f.name] as string[]) ?? []).map((url: string, idx: number) => (
+                        <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                          <div style={{ flex: 1 }}>
+                            <ImageUploadField
+                              value={url}
+                              onChange={(newUrl) => {
+                                const next = [...(editing[f.name] as string[])];
+                                next[idx] = newUrl;
+                                setEditing({ ...editing, [f.name]: next });
+                              }}
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            className="btn"
+                            style={{ padding: '8px 10px', fontSize: 12, color: 'var(--coral)', flexShrink: 0 }}
+                            onClick={() => {
+                              const next = (editing[f.name] as string[]).filter((_: string, i: number) => i !== idx);
+                              setEditing({ ...editing, [f.name]: next });
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="btn"
+                        style={{ padding: '8px 14px', fontSize: 13, alignSelf: 'flex-start' }}
+                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as string[]) ?? []), ''] })}
+                      >
+                        + Add image
+                      </button>
+                    </div>
                   ) : f.type === 'select' ? (
                     <select
                       value={editing[f.name] ?? ''}

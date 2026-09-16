@@ -2,10 +2,10 @@ import Link from 'next/link';
 
 const bgFor = (i: number) => ['var(--coral)', 'var(--yellow)', 'var(--purple)'][i % 3];
 
-export default function WorkCategoryTile({ label, i }: { label: string; i: number }) {
+export default function WorkCategoryTile({ slug, label, i }: { slug: string; label: string; i: number }) {
   return (
     <Link
-      href="/work"
+      href={`/work/${slug}`}
       className="card-flat svc-card"
       style={{
         display: 'flex',

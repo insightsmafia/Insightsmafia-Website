@@ -14,9 +14,9 @@ export default function WorkGrid() {
         </Reveal>
 
         <div className="tile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
-          {workCategories.map((label, i) => (
-            <Reveal key={label} delay={i * 60}>
-              <WorkCategoryTile label={label} i={i} />
+          {workCategories.map((c, i) => (
+            <Reveal key={c.slug} delay={i * 60}>
+              <WorkCategoryTile slug={c.slug} label={c.label} i={i} />
             </Reveal>
           ))}
         </div>

@@ -55,6 +55,8 @@ model Project {
   year          Int?
   coverImage    String?
   gallery       String           @default("[]")
+  videoUrl      String?
+  externalUrl   String?
   summary       String?
   body          String           @default("[]")
   metrics       String           @default("[]")
