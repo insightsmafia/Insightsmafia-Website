@@ -299,7 +299,7 @@ h1, h2, h3 {
 }
 
 .work-tile-arrow {
-  color: var(--accent);
+  color: var(--ink);
   font-weight: 800;
   font-size: 18px;
   flex-shrink: 0;
@@ -312,12 +312,19 @@ h1, h2, h3 {
     align-items: center;
     gap: 14px;
     padding: 12px 16px;
-    box-shadow: 3px 3px 0 var(--accent) !important;
+    box-shadow: 5px 5px 0 var(--accent);
   }
 
-  .work-tile:hover,
-  .work-tile:active {
-    transform: none !important;
+  /* :active (tap) still gets the normal .svc-card press effect, same as
+     every other button on the site - only the lingering :hover look (which
+     has no real meaning on a touch screen, and can get "stuck" on after a
+     tap ends) is pinned back to resting here. Excluding :active from this
+     selector (rather than using !important) matters: a real tap briefly
+     satisfies :hover too, and !important would have beaten .svc-card:active's
+     own transform/shadow, silently killing the press effect. */
+  .work-tile:hover:not(:active) {
+    transform: none;
+    box-shadow: 5px 5px 0 var(--accent);
   }
 
   .work-tile-blob {
@@ -341,10 +348,6 @@ h1, h2, h3 {
 
   .work-tile-bottom {
     flex: 1;
-  }
-
-  .work-tile-arrow {
-    display: none;
   }
 }
 
