@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { prisma } from '@/lib/db';
 
 export type SiteSettings = {
@@ -28,7 +29,10 @@ const defaults: SiteSettings = {
     'Full-service creative and growth agency — content creation, social media management, web development, performance marketing, and branding.',
 };
 
-export async function getSettings(): Promise<SiteSettings> {
+// Multiple components on the same page (root layout, Footer, a page's own
+// generateMetadata) each call this - React's cache() dedupes those into a
+// single DB round trip per request instead of one per caller.
+export const getSettings = cache(async (): Promise<SiteSettings> => {
   const row = await prisma.content.findUnique({ where: { key: 'settings' } });
   if (!row) return defaults;
   try {
@@ -36,4 +40,4 @@ export async function getSettings(): Promise<SiteSettings> {
   } catch {
     return defaults;
   }
-}
+});

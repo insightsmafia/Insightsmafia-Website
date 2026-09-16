@@ -4,7 +4,7 @@ import { getSettings } from '@/lib/settings';
 import { InstagramIcon, LinkedInIcon, TwitterIcon, FacebookIcon, YouTubeIcon } from '@/components/ui/SocialIcons';
 
 const exploreLinks = [
-  { href: '/#services', label: 'What we do?' },
+  { href: '/what-we-do', label: 'What we do?' },
   { href: '/work', label: 'What we did?' },
   { href: '/why-us', label: 'Why Us?' },
   { href: '/testimonials', label: 'Testimonials' },

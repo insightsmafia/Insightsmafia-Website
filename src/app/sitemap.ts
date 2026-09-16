@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const settings = await getSettings();
   const base = (settings.siteUrl || 'https://insightsmafia.com').replace(/\/$/, '');
 
-  const staticRoutes = ['', '/why-us', '/testimonials', '/work', '/lets-create', '/privacy-policy'].map((path) => ({
+  const staticRoutes = ['', '/why-us', '/testimonials', '/what-we-do', '/work', '/lets-create', '/privacy-policy'].map((path) => ({
     url: `${base}${path}`,
     lastModified: new Date(),
   }));
