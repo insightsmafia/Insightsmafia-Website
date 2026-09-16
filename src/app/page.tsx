@@ -24,8 +24,8 @@ export default function HomePage() {
       <Hero />
       <ClientsMarquee />
       <ServicesList />
-      <WorkGrid />
       <Process />
+      <WorkGrid />
       <TestimonialsFaqSection />
       <Footer />
     </>
