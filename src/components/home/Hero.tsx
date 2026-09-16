@@ -31,7 +31,7 @@ export default function Hero() {
           Insights Mafia is a full-service creative and growth agency — film, social, design, code and paid media, run by one tight team.
         </p>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <Button href="#work">See the work</Button>
+          <Button href="/work">See the work</Button>
           <Button href="/lets-create" variant="primary">Let&apos;s Create</Button>
         </div>
       </div>

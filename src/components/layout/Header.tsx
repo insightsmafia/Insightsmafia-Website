@@ -6,7 +6,7 @@ import Logo from '@/components/ui/Logo';
 
 const links = [
   { href: '/#services', label: 'What we do?' },
-  { href: '/#work', label: 'What we did?' },
+  { href: '/work', label: 'What we did?' },
   { href: '/why-us', label: 'Why Us?' },
 ];
 

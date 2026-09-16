@@ -121,6 +121,8 @@ h1, h2, h3 {
   height: 300px;
   overflow: hidden;
   border-radius: var(--radius);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
 }
 
 .testimonial-roller-track {
@@ -128,9 +130,19 @@ h1, h2, h3 {
   flex-direction: column;
 }
 
+/* Each slot is the full step height (what the track steps by), but the
+   visible card inside is inset by a few px on the right/bottom - that
+   reserves room for the card's offset drop-shadow, which would otherwise be
+   clipped by the roller's overflow:hidden (needed to mask the stepping). */
 .testimonial-roller-card {
   height: 300px;
   flex-shrink: 0;
+  box-sizing: border-box;
+  padding: 0 8px 8px 0;
+}
+
+.testimonial-roller-card-inner {
+  height: 100%;
   box-sizing: border-box;
   padding: 28px;
   display: flex;

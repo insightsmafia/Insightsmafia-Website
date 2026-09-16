@@ -1,42 +1,36 @@
 import Reveal from '@/components/ui/Reveal';
+import Button from '@/components/ui/Button';
+import { prisma } from '@/lib/db';
+import ProjectTile from './ProjectTile';
 
-const items = [
-  { cat: 'Film & Ad Production', color: 'var(--coral)' },
-  { cat: 'Branding & Logo', color: 'var(--yellow)' },
-  { cat: 'Web Development', color: 'var(--purple)' },
-  { cat: 'Performance Marketing', color: 'var(--coral)' },
-  { cat: 'Social Media Management', color: 'var(--yellow)' },
-];
+export default async function WorkGrid() {
+  const projects = await prisma.project.findMany({ where: { published: true }, orderBy: { order: 'asc' }, take: 6 });
 
-export default function WorkGrid() {
   return (
     <section className="section-pad" id="work" style={{ background: 'var(--surface)', borderTop: '2px solid var(--ink)', borderBottom: '2px solid var(--ink)' }}>
       <div className="wrap">
         <Reveal>
-          <h2 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, marginBottom: 12 }}>Recent work</h2>
+          <h2 style={{ fontSize: 'clamp(28px,4vw,44px)', fontWeight: 800, marginBottom: 12 }}>What we did?</h2>
           <p style={{ color: 'var(--muted)', maxWidth: 480, marginBottom: 56 }}>
-            Placeholders for now — real shoots and campaigns land here as they wrap.
+            Real shoots, campaigns and builds from the brands we&apos;ve worked with.
           </p>
         </Reveal>
 
-        <div className="tile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
-          {items.map((it, i) => (
-            <Reveal key={it.cat} delay={i * 70}>
-              <div
-                className="card-flat"
-                style={{ aspectRatio: '4/3', display: 'flex', alignItems: 'flex-end', padding: 20, background: it.color, boxShadow: '6px 6px 0 var(--ink)' }}
-              >
-                <div style={{ background: '#fff', border: '2px solid var(--ink)', borderRadius: 10, padding: '10px 14px' }}>
-                  <div style={{ fontSize: 11.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>{it.cat}</div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--muted)' }}>Case study coming soon</div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
+        {projects.length === 0 ? (
+          <p style={{ color: 'var(--muted)' }}>Case studies are on their way.</p>
+        ) : (
+          <div className="tile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
+            {projects.map((p, i) => (
+              <Reveal key={p.id} delay={i * 70}>
+                <ProjectTile p={p} i={i} />
+              </Reveal>
+            ))}
+          </div>
+        )}
+
+        <div style={{ marginTop: 32 }}>
+          <Button href="/work">See all work</Button>
         </div>
-        <p style={{ marginTop: 32, color: 'var(--muted)' }}>
-          Have a shoot, a campaign or a launch you&apos;re proud of? Send it over and it goes here first.
-        </p>
       </div>
     </section>
   );

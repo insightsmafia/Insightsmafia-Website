@@ -5,7 +5,7 @@ import { InstagramIcon, LinkedInIcon, TwitterIcon, FacebookIcon, YouTubeIcon } f
 
 const exploreLinks = [
   { href: '/#services', label: 'What we do?' },
-  { href: '/#work', label: 'What we did?' },
+  { href: '/work', label: 'What we did?' },
   { href: '/why-us', label: 'Why Us?' },
   { href: '/testimonials', label: 'Testimonials' },
   { href: '/lets-create', label: "Let's Create" },
