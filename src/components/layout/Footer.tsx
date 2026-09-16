@@ -7,7 +7,7 @@ const exploreLinks = [
   { href: '/what-we-do', label: 'What we do?' },
   { href: '/work', label: 'What we did?' },
   { href: '/why-us', label: 'Why Us?' },
-  { href: '/testimonials', label: 'Testimonials' },
+  { href: '/testimonials', label: 'What clients say?' },
   { href: '/lets-create', label: "Let's Create" },
 ];
 

@@ -18,7 +18,7 @@ export default async function TestimonialsFaqSection() {
         <div className="split-screen">
           <div>
             <Reveal>
-              <h2 style={{ fontSize: 'clamp(24px,3.5vw,36px)', fontWeight: 800, marginBottom: 12 }}>What clients say</h2>
+              <h2 style={{ fontSize: 'clamp(24px,3.5vw,36px)', fontWeight: 800, marginBottom: 12 }}>What clients say?</h2>
               <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Real feedback from the brands we&apos;ve worked with.</p>
             </Reveal>
             {testimonials.length === 0 ? (

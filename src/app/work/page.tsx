@@ -4,11 +4,15 @@ import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import WorkCategoryTile from '@/components/home/WorkCategoryTile';
 import { workCategories } from '@/lib/workCategories';
+import { getSettings } from '@/lib/settings';
 
-export const metadata: Metadata = {
-  title: 'What We Did? — Insights Mafia',
-  description: 'Real shoots, campaigns and builds from the brands Insights Mafia has run film, social, design, code and paid media for.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  return {
+    title: settings.workTitle || 'What We Did? — Insights Mafia',
+    description: settings.workDescription || 'Real shoots, campaigns and builds from the brands Insights Mafia has run film, social, design, code and paid media for.',
+  };
+}
 
 export default function WorkPage() {
   return (

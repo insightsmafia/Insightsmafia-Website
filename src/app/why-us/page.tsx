@@ -3,11 +3,15 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import TeamSection from '@/components/home/TeamSection';
+import { getSettings } from '@/lib/settings';
 
-export const metadata: Metadata = {
-  title: 'Why Insights Mafia — A crew that delivers',
-  description: 'One tight team across film, social, design, code and paid media — no hand-offs, no agencies-of-agencies.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  return {
+    title: settings.whyUsTitle || 'Why Insights Mafia — A crew that delivers',
+    description: settings.whyUsDescription || 'One tight team across film, social, design, code and paid media — no hand-offs, no agencies-of-agencies.',
+  };
+}
 
 const reasons = [
   { title: 'One team, zero hand-offs', desc: 'Film, social, design, code and paid media under one roof — no briefing five agencies separately.', color: 'var(--coral)' },

@@ -11,6 +11,16 @@ export type SiteSettings = {
   searchConsoleProperty?: string;
   homeTitle?: string;
   homeDescription?: string;
+  whatWeDoTitle?: string;
+  whatWeDoDescription?: string;
+  workTitle?: string;
+  workDescription?: string;
+  whyUsTitle?: string;
+  whyUsDescription?: string;
+  letsCreateTitle?: string;
+  letsCreateDescription?: string;
+  testimonialsTitle?: string;
+  testimonialsDescription?: string;
   social?: {
     instagram?: string;
     linkedin?: string;

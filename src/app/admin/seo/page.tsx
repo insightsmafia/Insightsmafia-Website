@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { workCategories } from '@/lib/workCategories';
 
 function authHeaders() {
   const token = localStorage.getItem('admin_token');
@@ -43,10 +44,13 @@ export default function AdminSeoPage() {
   const base = status?.siteUrl?.replace(/\/$/, '') || '';
   const keyPages = [
     { label: 'Homepage', path: '/' },
+    { label: 'What we do?', path: '/what-we-do' },
+    { label: 'What we did?', path: '/work' },
     { label: 'Why Us?', path: '/why-us' },
-    { label: 'Testimonials', path: '/testimonials' },
+    { label: 'What clients say?', path: '/testimonials' },
     { label: "Let's Create", path: '/lets-create' },
     ...services.map((s) => ({ label: s.title, path: `/services/${s.slug}` })),
+    ...workCategories.map((c) => ({ label: c.label, path: `/work/${c.slug}` })),
   ];
 
   const searchConsoleDashboardUrl = status?.searchConsoleProperty

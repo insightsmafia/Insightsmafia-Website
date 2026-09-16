@@ -37,7 +37,7 @@ export default async function ServicesList() {
                 <div style={{ width: 40, height: 8, background: colorFor(i), borderRadius: 4, marginBottom: 20 }} />
                 <h3 style={{ fontSize: 21, fontWeight: 700, marginBottom: 10 }}>{s.title}</h3>
                 <p style={{ color: 'var(--muted)', fontSize: 14.5, lineHeight: 1.6, marginBottom: 14 }}>{s.excerpt}</p>
-                <span style={{ fontWeight: 700, fontSize: 13.5, color: colorFor(i) }}>See work →</span>
+                <span style={{ fontWeight: 700, fontSize: 13.5, color: colorFor(i) }}>See description →</span>
               </Link>
             </Reveal>
           ))}

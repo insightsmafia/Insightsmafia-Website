@@ -12,6 +12,16 @@ type Settings = {
   searchConsoleProperty?: string;
   homeTitle?: string;
   homeDescription?: string;
+  whatWeDoTitle?: string;
+  whatWeDoDescription?: string;
+  workTitle?: string;
+  workDescription?: string;
+  whyUsTitle?: string;
+  whyUsDescription?: string;
+  letsCreateTitle?: string;
+  letsCreateDescription?: string;
+  testimonialsTitle?: string;
+  testimonialsDescription?: string;
   social?: {
     instagram?: string;
     linkedin?: string;
@@ -20,6 +30,14 @@ type Settings = {
     youtube?: string;
   };
 };
+
+const pageSeoFields = [
+  { key: 'whatWeDo', label: 'What we do?', path: '/what-we-do' },
+  { key: 'work', label: 'What we did?', path: '/work' },
+  { key: 'whyUs', label: 'Why Us?', path: '/why-us' },
+  { key: 'letsCreate', label: "Let's Create", path: '/lets-create' },
+  { key: 'testimonials', label: 'What clients say?', path: '/testimonials' },
+] as const;
 
 function authHeaders() {
   const token = localStorage.getItem('admin_token');
@@ -90,6 +108,27 @@ export default function AdminSettingsPage() {
           onChange={(v) => setSettings({ ...settings, homeDescription: v })}
           textarea
         />
+
+        <h2 style={{ fontSize: 15, fontWeight: 800, marginTop: 8 }}>Page SEO</h2>
+        <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: -12 }}>
+          Headline and snippet shown on Google and browser tabs for each main page. Leave blank to use the site default.
+        </p>
+        {pageSeoFields.map((p) => (
+          <div key={p.key} style={{ paddingTop: 8, borderTop: '1px solid var(--muted)', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ fontWeight: 700, fontSize: 13.5 }}>{p.label} <span style={{ color: 'var(--muted)', fontWeight: 600 }}>({p.path})</span></div>
+            <Field
+              label="Page title"
+              value={settings[`${p.key}Title` as keyof Settings] as string ?? ''}
+              onChange={(v) => setSettings({ ...settings, [`${p.key}Title`]: v })}
+            />
+            <Field
+              label="Meta description"
+              value={settings[`${p.key}Description` as keyof Settings] as string ?? ''}
+              onChange={(v) => setSettings({ ...settings, [`${p.key}Description`]: v })}
+              textarea
+            />
+          </div>
+        ))}
 
         <h2 style={{ fontSize: 15, fontWeight: 800, marginTop: 8 }}>Social links</h2>
         <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: -12 }}>Leave blank to hide a platform from the footer.</p>
