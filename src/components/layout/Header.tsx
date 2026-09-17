@@ -33,11 +33,24 @@ export default function Header() {
     setMenuOpen(false);
   }, []);
 
+  // Close the menu once the user actually scrolls again - but not
+  // instantly: opening the menu often follows a scroll-up gesture (the one
+  // that just brought the bar back into view), and on iOS that gesture's
+  // momentum/inertial scrolling keeps firing 'scroll' events for a few
+  // hundred ms after the finger lifts. Without a grace period, that leftover
+  // momentum closes the menu the same instant it opens.
   useEffect(() => {
-    if (!menuOpen) return;
+    if (!menuOpen) return undefined;
+    let attached = false;
     const onScroll = () => setMenuOpen(false);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const timer = setTimeout(() => {
+      window.addEventListener('scroll', onScroll, { passive: true });
+      attached = true;
+    }, 400);
+    return () => {
+      clearTimeout(timer);
+      if (attached) window.removeEventListener('scroll', onScroll);
+    };
   }, [menuOpen]);
 
   // Hide the bar on any meaningful downward scroll, bring it back on the
