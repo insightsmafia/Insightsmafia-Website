@@ -1,35 +1,16 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { proxyImage } from '@/lib/imageProxy';
+import { useBlobUpload } from '@/lib/useBlobUpload';
 
 export default function ImageUploadField({ value, onChange }: { value: string; onChange: (url: string) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState('');
+  const { uploading, progress, error, uploadFile } = useBlobUpload();
 
   async function handleFile(file: File) {
-    setUploading(true);
-    setError('');
-    const token = localStorage.getItem('admin_token');
-    const form = new FormData();
-    form.append('file', file);
-    try {
-      const res = await fetch('/api/admin/upload', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: form,
-      });
-      const json = await res.json();
-      if (json.ok) {
-        onChange(json.url);
-      } else {
-        setError(json.error || 'Upload failed.');
-      }
-    } catch {
-      setError('Upload failed.');
-    }
-    setUploading(false);
+    const url = await uploadFile(file);
+    if (url) onChange(url);
   }
 
   return (
@@ -52,7 +33,7 @@ export default function ImageUploadField({ value, onChange }: { value: string; o
               onClick={() => inputRef.current?.click()}
               disabled={uploading}
             >
-              {uploading ? 'Uploading…' : value ? 'Replace image' : 'Upload image'}
+              {uploading ? `Uploading… ${progress}%` : value ? 'Replace image' : 'Upload image'}
             </button>
             {value && (
               <button
@@ -65,6 +46,11 @@ export default function ImageUploadField({ value, onChange }: { value: string; o
               </button>
             )}
           </div>
+          {uploading && (
+            <div style={{ width: '100%', height: 6, borderRadius: 4, background: 'var(--bg)', border: '1px solid var(--line)', overflow: 'hidden' }}>
+              <div style={{ width: `${progress}%`, height: '100%', background: 'var(--purple)', transition: 'width 0.15s ease' }} />
+            </div>
+          )}
           <input
             value={value}
             onChange={(e) => onChange(e.target.value)}

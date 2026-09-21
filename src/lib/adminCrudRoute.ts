@@ -9,7 +9,12 @@ type Delegate = {
 };
 
 /** Builds Bearer-token-gated GET/POST/PATCH/DELETE handlers for a simple id-keyed Prisma model. */
-export function crudHandlers(delegate: Delegate, orderBy: Record<string, unknown> = { order: 'asc' }) {
+export function crudHandlers(
+  delegate: Delegate,
+  orderBy: Record<string, unknown> = { order: 'asc' },
+  /** Runs on the submitted body before create, e.g. to auto-fill a field the admin form no longer collects. */
+  beforeCreate?: (data: any) => any
+) {
   async function GET(req: NextRequest) {
     const admin = requireAdmin(req);
     if (!admin) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
@@ -20,7 +25,8 @@ export function crudHandlers(delegate: Delegate, orderBy: Record<string, unknown
   async function POST(req: NextRequest) {
     const admin = requireAdmin(req);
     if (!admin) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
-    const data = await req.json();
+    let data = await req.json();
+    if (beforeCreate) data = beforeCreate(data);
     const item = await delegate.create({ data });
     return NextResponse.json({ ok: true, item });
   }

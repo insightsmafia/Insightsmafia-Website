@@ -25,16 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  const projects = await prisma.project.findMany({
-    where: { published: true },
-    select: { slug: true, category: { select: { slug: true } } },
-  });
-  const projectRoutes = projects
-    .filter((p) => p.category)
-    .map((p) => ({
-      url: `${base}/work/${p.category!.slug}/${p.slug}`,
-      lastModified: new Date(),
-    }));
-
-  return [...staticRoutes, ...serviceRoutes, ...categoryRoutes, ...projectRoutes];
+  // Case studies no longer have their own page - they're browsed one at a
+  // time within their category page - so there's nothing per-project to list.
+  return [...staticRoutes, ...serviceRoutes, ...categoryRoutes];
 }

@@ -24,13 +24,8 @@ export default function AdminWorkCategoryPage() {
   if (category === null) return <p style={{ color: 'var(--coral)' }}>Unknown category.</p>;
 
   const fields: Field[] = [
-    { name: 'title', label: 'Case study title', type: 'text', required: true },
-    { name: 'slug', label: 'Slug', type: 'text', required: true },
-    { name: 'client', label: 'Client name', type: 'text' },
-    { name: 'summary', label: 'Summary (shown on the case study card)', type: 'textarea' },
-    { name: 'body', label: 'Full story (shown on the case study page)', type: 'textarea' },
-    { name: 'coverImage', label: 'Cover image', type: 'image' },
-    { name: 'gallery', label: 'Gallery images', type: 'imagelist' },
+    { name: 'client', label: 'Client name', type: 'text', required: true },
+    { name: 'summary', label: 'Description', type: 'textarea' },
     {
       name: 'videoOrientation',
       label: 'Video layout',
@@ -40,7 +35,7 @@ export default function AdminWorkCategoryPage() {
         { value: 'horizontal', label: 'Horizontal — video on top, client info below' },
       ],
     },
-    { name: 'videos', label: 'Reel / video links (YouTube, Vimeo, or a direct .mp4 link)', type: 'urllist', placeholder: 'https://…' },
+    { name: 'videos', label: 'Reels / videos — upload a file or paste a YouTube, Vimeo, or Instagram link', type: 'videolist' },
     { name: 'externalUrl', label: 'External link (e.g. live site, Instagram post)', type: 'text' },
     { name: 'year', label: 'Year', type: 'number' },
     { name: 'order', label: 'Order', type: 'number' },
@@ -56,8 +51,8 @@ export default function AdminWorkCategoryPage() {
       fields={fields}
       defaults={{ categoryId: category.id }}
       filter={(p) => p.categoryId === category.id}
-      getLabel={(p) => p.title}
-      getSubtitle={(p) => p.client || p.summary || ''}
+      getLabel={(p) => p.client || 'Untitled client'}
+      getSubtitle={(p) => p.summary || ''}
     />
   );
 }

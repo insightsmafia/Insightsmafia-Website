@@ -1000,6 +1000,23 @@ h1, h2, h3 {
   right: 8px;
 }
 
+.reel-mute-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 3, 21, 0.55);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+
 .reel-dots {
   display: flex;
   justify-content: center;
@@ -1046,6 +1063,41 @@ h1, h2, h3 {
   line-height: 1.6;
   color: var(--muted);
   margin: 0;
+}
+
+/* ---- client-nav: steps between case studies within a category, in place
+   of clicking through to a separate page per case study. ---- */
+.client-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.client-nav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--ink);
+  padding: 8px 4px;
+  max-width: 42%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.client-nav-btn:hover {
+  color: var(--purple);
+}
+
+.client-nav-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
 }
 
 @media (max-width: 860px) {

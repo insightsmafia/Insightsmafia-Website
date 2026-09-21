@@ -4,10 +4,8 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
+import CategoryCaseStudyBrowser from '@/components/work/CategoryCaseStudyBrowser';
 import { prisma } from '@/lib/db';
-import { proxyImage } from '@/lib/imageProxy';
-
-const colorFor = (i: number) => ['var(--coral)', 'var(--yellow)', 'var(--purple)'][i % 3];
 
 export async function generateMetadata({ params }: { params: { category: string } }): Promise<Metadata> {
   const category = await prisma.projectCategory.findUnique({ where: { slug: params.category } });
@@ -22,9 +20,27 @@ export default async function WorkCategoryPage({ params }: { params: { category:
   const category = await prisma.projectCategory.findUnique({ where: { slug: params.category } });
   if (!category) notFound();
 
-  const projects = await prisma.project.findMany({
+  const rawProjects = await prisma.project.findMany({
     where: { categoryId: category.id, published: true },
     orderBy: { order: 'asc' },
+  });
+
+  const projects = rawProjects.map((p) => {
+    let videos: string[] = [];
+    try {
+      videos = JSON.parse(p.videos || '[]');
+    } catch {
+      videos = [];
+    }
+    return {
+      id: p.id,
+      client: p.client,
+      year: p.year,
+      summary: p.summary,
+      videos,
+      videoOrientation: p.videoOrientation === 'horizontal' ? ('horizontal' as const) : ('vertical' as const),
+      externalUrl: p.externalUrl,
+    };
   });
 
   return (
@@ -48,31 +64,9 @@ export default async function WorkCategoryPage({ params }: { params: { category:
               <p style={{ color: 'var(--muted)', fontSize: 14.5 }}>We&apos;re adding {category.label.toLowerCase()} work here shortly.</p>
             </div>
           ) : (
-            <div className="tile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
-              {projects.map((p, i) => (
-                <Reveal key={p.id} delay={i * 60}>
-                  <Link
-                    href={`/work/${category.slug}/${p.slug}`}
-                    className="card-flat svc-card"
-                    style={{
-                      display: 'flex',
-                      aspectRatio: '4/3',
-                      alignItems: 'flex-end',
-                      padding: 20,
-                      textDecoration: 'none',
-                      color: 'inherit',
-                      background: p.coverImage ? `url(${proxyImage(p.coverImage)}) center/cover` : colorFor(i),
-                      ['--accent' as string]: 'var(--ink)',
-                    } as React.CSSProperties}
-                  >
-                    <div style={{ background: '#fff', border: '2px solid var(--ink)', borderRadius: 10, padding: '10px 14px' }}>
-                      <div style={{ fontSize: 11.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 4 }}>{p.title}</div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--muted)' }}>{p.client || p.summary || 'Case study'}</div>
-                    </div>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
+            <Reveal>
+              <CategoryCaseStudyBrowser projects={projects} />
+            </Reveal>
           )}
         </div>
       </section>

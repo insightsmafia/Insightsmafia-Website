@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import ImageUploadField from './ImageUploadField';
+import VideoUploadField from './VideoUploadField';
 
 type Item = Record<string, any>;
 
@@ -11,7 +12,7 @@ export type Field =
   | { name: string; label: string; type: 'checkbox' }
   | { name: string; label: string; type: 'image' }
   | { name: string; label: string; type: 'imagelist' }
-  | { name: string; label: string; type: 'urllist'; placeholder?: string }
+  | { name: string; label: string; type: 'videolist' }
   | { name: string; label: string; type: 'select'; options: { value: string; label: string }[] };
 
 type Props = {
@@ -45,6 +46,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
   const [items, setItems] = useState<Item[]>([]);
   const [editing, setEditing] = useState<Item | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [loading, setLoading] = useState(true);
   const dragIndex = useRef<number | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -61,10 +63,14 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
 
   useEffect(load, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (editing) setSaveError('');
+  }, [editing]);
+
   function openNew() {
     const blank: Item = { published: true, order: items.length };
     for (const f of fields) {
-      if (!(f.name in blank)) blank[f.name] = f.type === 'checkbox' ? false : f.type === 'number' ? 0 : f.type === 'imagelist' || f.type === 'urllist' ? [] : '';
+      if (!(f.name in blank)) blank[f.name] = f.type === 'checkbox' ? false : f.type === 'number' ? 0 : f.type === 'imagelist' || f.type === 'videolist' ? [] : '';
     }
     setEditing({ ...blank, ...defaults });
   }
@@ -72,7 +78,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
   function openEdit(item: Item) {
     const draft = { ...item };
     for (const f of fields) {
-      if (f.type === 'imagelist' || f.type === 'urllist') {
+      if (f.type === 'imagelist' || f.type === 'videolist') {
         try {
           draft[f.name] = JSON.parse(item[f.name] || '[]');
         } catch {
@@ -85,11 +91,19 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
 
   async function save() {
     if (!editing) return;
+    // `required` on the <input> has no effect since Save isn't a form submit -
+    // check it ourselves, otherwise a blank title/slug silently saves.
+    const missing = fields.filter((f) => 'required' in f && f.required && !String(editing[f.name] ?? '').trim());
+    if (missing.length > 0) {
+      setSaveError(`${missing.map((f) => f.label).join(', ')} ${missing.length > 1 ? 'are' : 'is'} required.`);
+      return;
+    }
+    setSaveError('');
     setSaving(true);
     const payload: Item = { ...defaults };
     for (const f of fields) {
       const v = editing[f.name];
-      payload[f.name] = f.type === 'number' ? Number(v || 0) : f.type === 'imagelist' || f.type === 'urllist' ? JSON.stringify(v || []) : v;
+      payload[f.name] = f.type === 'number' ? Number(v || 0) : f.type === 'imagelist' || f.type === 'videolist' ? JSON.stringify(v || []) : v;
     }
     if ('published' in editing) payload.published = editing.published;
     if ('order' in editing) payload.order = Number(editing.order || 0);
@@ -279,20 +293,17 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                         + Add image
                       </button>
                     </div>
-                  ) : f.type === 'urllist' ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  ) : f.type === 'videolist' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                       {((editing[f.name] as string[]) ?? []).map((url: string, idx: number) => (
-                        <div key={idx} style={{ display: 'flex', gap: 8 }}>
-                          <input
-                            type="text"
+                        <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                          <VideoUploadField
                             value={url}
-                            placeholder={f.placeholder}
-                            onChange={(e) => {
+                            onChange={(newUrl) => {
                               const next = [...(editing[f.name] as string[])];
-                              next[idx] = e.target.value;
+                              next[idx] = newUrl;
                               setEditing({ ...editing, [f.name]: next });
                             }}
-                            style={{ ...fieldStyle, flex: 1 }}
                           />
                           <button
                             type="button"
@@ -363,6 +374,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                 </label>
               )}
             </div>
+            {saveError && <p style={{ color: 'var(--coral)', fontSize: 13, fontWeight: 600, marginTop: 14 }}>{saveError}</p>}
             <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
               <button className="btn btn-primary" onClick={save} disabled={saving} style={{ flex: 1 }}>
                 {saving ? 'Saving…' : 'Save'}
