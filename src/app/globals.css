@@ -973,6 +973,25 @@ h1, h2, h3 {
   background: #0b0b0f;
 }
 
+/* CSS-driven "fullscreen" instead of the native Fullscreen API - iOS
+   Safari has unreliable/inconsistent support for requestFullscreen() on
+   embedded third-party iframes (YouTube/Vimeo), so this works everywhere
+   regardless of platform quirks. */
+.reel-frame-fullscreen-active {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  aspect-ratio: auto !important;
+  z-index: 9999;
+}
+
 .reel-arrow {
   position: absolute;
   top: 50%;

@@ -5,6 +5,8 @@ import Button from '@/components/ui/Button';
 import { getVideoEmbed } from '@/lib/videoEmbed';
 import { VideoItem } from '@/lib/normalizeVideos';
 import { proxyImage } from '@/lib/imageProxy';
+import { loadYouTubeIframeApi } from '@/lib/youtubeIframeApi';
+import { loadVimeoPlayerApi } from '@/lib/vimeoPlayerApi';
 
 function ArrowButton({ dir, onClick }: { dir: 'left' | 'right'; onClick: () => void }) {
   return (
@@ -27,11 +29,15 @@ function MuteButton({ muted, onToggle }: { muted: boolean; onToggle: () => void 
   );
 }
 
-function FullscreenButton({ onClick }: { onClick: () => void }) {
+function FullscreenButton({ active, onClick }: { active: boolean; onClick: () => void }) {
   return (
-    <button type="button" className="reel-frame-btn" onClick={onClick} aria-label="Full screen">
+    <button type="button" className="reel-frame-btn" onClick={onClick} aria-label={active ? 'Exit full screen' : 'Full screen'}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" />
+        {active ? (
+          <path d="M9 3v3a2 2 0 0 1-2 2H4M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3" />
+        ) : (
+          <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" />
+        )}
       </svg>
     </button>
   );
@@ -57,14 +63,35 @@ function ViewsBadge({ views }: { views: string }) {
   );
 }
 
-// YouTube and Vimeo expose a postMessage API for toggling mute after the
-// embed loads; Instagram's public /embed iframe doesn't expose one, so no
-// mute button is shown for it and it falls back to its own click-to-play UI.
-function VideoFrame({ url, views, frameClassName, muted, onToggleMute }: { url: string; views?: string; frameClassName: string; muted: boolean; onToggleMute: () => void }) {
-  const embed = getVideoEmbed(url);
+// YouTube and Vimeo expose a postMessage API for toggling mute and for
+// "video ended" notifications (used to auto-advance the carousel);
+// Instagram's public /embed iframe exposes neither, so no mute button
+// shows for it and it can't auto-advance - it falls back to its own
+// click-to-play UI and stays until the visitor swipes manually.
+function VideoFrame({
+  url,
+  views,
+  frameClassName,
+  muted,
+  onToggleMute,
+  loop,
+  onEnded,
+  fullscreen,
+  onToggleFullscreen,
+}: {
+  url: string;
+  views?: string;
+  frameClassName: string;
+  muted: boolean;
+  onToggleMute: () => void;
+  loop: boolean;
+  onEnded: () => void;
+  fullscreen: boolean;
+  onToggleFullscreen: () => void;
+}) {
+  const embed = getVideoEmbed(url, { initialMuted: muted, loop });
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const frameRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (embed.provider === 'file' && videoRef.current) {
@@ -85,45 +112,52 @@ function VideoFrame({ url, views, frameClassName, muted, onToggleMute }: { url: 
     }
   }
 
-  function handleFullscreen() {
-    const doc = document as any;
-    const fsElement = document.fullscreenElement || doc.webkitFullscreenElement;
-    if (fsElement) {
-      if (document.exitFullscreen) document.exitFullscreen();
-      else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
-      return;
+  // Detecting "ended" reliably needs each provider's official player
+  // library wrapping the existing iframe - a hand-rolled raw postMessage
+  // subscription doesn't reliably receive state-change broadcasts. Only
+  // needed when there's something to advance to (loop === false).
+  useEffect(() => {
+    if (loop || !iframeRef.current) return;
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+
+    if (embed.provider === 'youtube') {
+      loadYouTubeIframeApi().then((YT) => {
+        if (cancelled || !YT || !iframeRef.current) return;
+        const player = new YT.Player(iframeRef.current, {
+          events: {
+            onStateChange: (e: any) => {
+              if (e.data === YT.PlayerState.ENDED) onEnded();
+            },
+          },
+        });
+        cleanup = () => player?.destroy?.();
+      });
+    } else if (embed.provider === 'vimeo') {
+      loadVimeoPlayerApi().then((Vimeo) => {
+        if (cancelled || !Vimeo || !iframeRef.current) return;
+        const player = new Vimeo.Player(iframeRef.current);
+        player.on('ended', onEnded);
+        cleanup = () => player.off('ended', onEnded);
+      });
     }
-    // iPhone Safari only reliably supports fullscreen on the actual media
-    // element, not a generic wrapping <div>, and on older versions only via
-    // the webkit-prefixed API (video.webkitEnterFullscreen) rather than the
-    // standard requestFullscreen - try the real element first, in every
-    // form it might support, before falling back to the outer frame.
-    if (embed.provider === 'file' && videoRef.current) {
-      const v = videoRef.current as any;
-      if (v.requestFullscreen) return void v.requestFullscreen();
-      if (v.webkitEnterFullscreen) return void v.webkitEnterFullscreen();
-      if (v.webkitRequestFullscreen) return void v.webkitRequestFullscreen();
-    }
-    if (embed.type === 'iframe' && iframeRef.current) {
-      const f = iframeRef.current as any;
-      if (f.requestFullscreen) return void f.requestFullscreen();
-      if (f.webkitRequestFullscreen) return void f.webkitRequestFullscreen();
-    }
-    const el = frameRef.current as any;
-    if (el?.requestFullscreen) el.requestFullscreen();
-    else if (el?.webkitRequestFullscreen) el.webkitRequestFullscreen();
-  }
+
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
+  }, [loop, embed.provider, onEnded]);
 
   const canToggleMute = embed.provider === 'file' || embed.provider === 'youtube' || embed.provider === 'vimeo';
 
   return (
-    <div className={frameClassName} ref={frameRef}>
+    <div className={`${frameClassName}${fullscreen ? ' reel-frame-fullscreen-active' : ''}`}>
       {embed.type === 'iframe' ? (
         <iframe
           ref={iframeRef}
           src={embed.src}
           title="Case study video"
-          allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allow="autoplay; fullscreen; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }}
         />
@@ -132,7 +166,8 @@ function VideoFrame({ url, views, frameClassName, muted, onToggleMute }: { url: 
           ref={videoRef}
           autoPlay
           muted={muted}
-          loop
+          loop={loop}
+          onEnded={!loop ? onEnded : undefined}
           playsInline
           src={embed.src}
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
@@ -141,7 +176,7 @@ function VideoFrame({ url, views, frameClassName, muted, onToggleMute }: { url: 
       {views && <ViewsBadge views={views} />}
       <div className="reel-frame-controls">
         {canToggleMute && <MuteButton muted={muted} onToggle={handleToggle} />}
-        <FullscreenButton onClick={handleFullscreen} />
+        <FullscreenButton active={fullscreen} onClick={onToggleFullscreen} />
       </div>
     </div>
   );
@@ -161,7 +196,14 @@ export default function ReelShowcase({ client, summary, videos, images, orientat
   const [muted, setMuted] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [canExpandSummary, setCanExpandSummary] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
   const summaryRef = useRef<HTMLParagraphElement>(null);
+  // Once the visitor unmutes any video, keep asking for sound on every
+  // video after that (within this page view) instead of making them tap
+  // unmute again for each new reel - a browser is far more willing to
+  // honor unmuted autoplay as a continuation of an already-granted gesture
+  // than as a fresh, cold request.
+  const soundEnabledRef = useRef(false);
   const hasVideos = videos.length > 0;
   // Videos take priority when a case study has both - images are the
   // fallback carousel for case studies that only have stills to show.
@@ -182,17 +224,14 @@ export default function ReelShowcase({ client, summary, videos, images, orientat
     setExpanded(false);
   }, [client]);
 
-  // Every reel/video switch mounts a brand-new <video>/<iframe> element, and
-  // mobile Safari silently forces each new one to start muted regardless of
-  // what we request - it doesn't tell us when it does this. If our `muted`
-  // state stayed false across the switch, the mute button would show
-  // "sound is on" while the video was actually silent, and tapping it would
-  // send a mute command instead of unmute (since it trusts the stale
-  // state) - the exact "have to mute/unmute again and again" bug. Resetting
-  // to the one state every browser is guaranteed to honor keeps the button
-  // and the real playback state in sync, so a single tap reliably unmutes.
+  // Every reel/video switch mounts a brand-new <video>/<iframe> element.
+  // Start it muted unless the visitor has already unmuted once this
+  // session (see soundEnabledRef above); either way this always matches
+  // exactly what we're about to request from the embed, so the mute
+  // button and the actual playback state can't drift apart - the "have to
+  // mute/unmute again and again" bug was caused by the two disagreeing.
   useEffect(() => {
-    setMuted(true);
+    setMuted(!soundEnabledRef.current);
   }, [activeMediaUrl]);
 
   useEffect(() => {
@@ -207,11 +246,34 @@ export default function ReelShowcase({ client, summary, videos, images, orientat
     return () => window.removeEventListener('resize', check);
   }, [summary, expanded]);
 
+  // Exit the CSS-based fullscreen overlay on Escape, and lock background
+  // scroll while it's open.
+  useEffect(() => {
+    if (!fullscreen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setFullscreen(false);
+    }
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [fullscreen]);
+
   function prev() {
     setIndex((i) => (i - 1 + activeCount) % activeCount);
   }
   function next() {
     setIndex((i) => (i + 1) % activeCount);
+  }
+  function toggleMuted() {
+    setMuted((m) => {
+      const next = !m;
+      soundEnabledRef.current = !next;
+      return next;
+    });
   }
 
   const mediaFrame = hasVideos ? (
@@ -221,12 +283,19 @@ export default function ReelShowcase({ client, summary, videos, images, orientat
       views={videos[safeIndex].views}
       frameClassName={orientation === 'vertical' ? 'reel-frame-vertical' : 'reel-frame-horizontal'}
       muted={muted}
-      onToggleMute={() => setMuted((m) => !m)}
+      onToggleMute={toggleMuted}
+      loop={!hasMultiple}
+      onEnded={next}
+      fullscreen={fullscreen}
+      onToggleFullscreen={() => setFullscreen((f) => !f)}
     />
   ) : hasImages ? (
-    <div className="reel-frame-image">
+    <div className={`reel-frame-image${fullscreen ? ' reel-frame-fullscreen-active' : ''}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={proxyImage(images[safeIndex])} alt={client || 'Case study'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+      <div className="reel-frame-controls">
+        <FullscreenButton active={fullscreen} onClick={() => setFullscreen((f) => !f)} />
+      </div>
     </div>
   ) : (
     <div className={orientation === 'vertical' ? 'reel-frame-vertical' : 'reel-frame-horizontal'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111', color: '#fff', fontSize: 13, fontWeight: 600 }}>
