@@ -3,14 +3,16 @@ export type VideoEmbed = { type: 'iframe' | 'video'; src: string; provider: Vide
 
 /**
  * Turns a pasted YouTube/Vimeo/Instagram/direct-file URL into something
- * renderable, pre-wired for autoplay + loop + sound on wherever the
- * provider's embed API supports it. Browsers that block unmuted autoplay
- * (no prior user interaction with the site) will fall back to muted
- * playback regardless of these params - the on-frame mute button still
- * lets the visitor turn sound on with one click in that case. YouTube and
- * Vimeo expose a postMessage API for toggling mute after the fact;
- * Instagram's public /embed iframe does not; direct files are fully
- * controllable via the native <video> element.
+ * renderable, pre-wired for autoplay + loop wherever the provider's embed
+ * API supports it. Always requests muted autoplay - every browser
+ * (mobile Safari in particular) honors that reliably, whereas requesting
+ * unmuted autoplay gets silently downgraded to muted on iOS with no event
+ * to tell us it happened, which desyncs our mute button from the actual
+ * playback state. The on-frame mute button lets the visitor turn sound on
+ * with one reliable tap instead. YouTube and Vimeo expose a postMessage
+ * API for toggling mute after the fact; Instagram's public /embed iframe
+ * does not; direct files are fully controllable via the native <video>
+ * element.
  */
 export function getVideoEmbed(url: string): VideoEmbed {
   const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
@@ -18,7 +20,7 @@ export function getVideoEmbed(url: string): VideoEmbed {
     const id = yt[1];
     const params = new URLSearchParams({
       autoplay: '1',
-      mute: '0',
+      mute: '1',
       loop: '1',
       playlist: id,
       playsinline: '1',
@@ -32,7 +34,7 @@ export function getVideoEmbed(url: string): VideoEmbed {
   const vimeo = url.match(/vimeo\.com\/(\d+)/);
   if (vimeo) {
     const id = vimeo[1];
-    const params = new URLSearchParams({ autoplay: '1', muted: '0', loop: '1', controls: '0' });
+    const params = new URLSearchParams({ autoplay: '1', muted: '1', loop: '1', controls: '0' });
     return { type: 'iframe', provider: 'vimeo', src: `https://player.vimeo.com/video/${id}?${params}` };
   }
 

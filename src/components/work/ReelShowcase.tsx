@@ -86,13 +86,32 @@ function VideoFrame({ url, views, frameClassName, muted, onToggleMute }: { url: 
   }
 
   function handleFullscreen() {
-    const el = frameRef.current;
-    if (!el) return;
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else {
-      el.requestFullscreen?.();
+    const doc = document as any;
+    const fsElement = document.fullscreenElement || doc.webkitFullscreenElement;
+    if (fsElement) {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
+      return;
     }
+    // iPhone Safari only reliably supports fullscreen on the actual media
+    // element, not a generic wrapping <div>, and on older versions only via
+    // the webkit-prefixed API (video.webkitEnterFullscreen) rather than the
+    // standard requestFullscreen - try the real element first, in every
+    // form it might support, before falling back to the outer frame.
+    if (embed.provider === 'file' && videoRef.current) {
+      const v = videoRef.current as any;
+      if (v.requestFullscreen) return void v.requestFullscreen();
+      if (v.webkitEnterFullscreen) return void v.webkitEnterFullscreen();
+      if (v.webkitRequestFullscreen) return void v.webkitRequestFullscreen();
+    }
+    if (embed.type === 'iframe' && iframeRef.current) {
+      const f = iframeRef.current as any;
+      if (f.requestFullscreen) return void f.requestFullscreen();
+      if (f.webkitRequestFullscreen) return void f.webkitRequestFullscreen();
+    }
+    const el = frameRef.current as any;
+    if (el?.requestFullscreen) el.requestFullscreen();
+    else if (el?.webkitRequestFullscreen) el.webkitRequestFullscreen();
   }
 
   const canToggleMute = embed.provider === 'file' || embed.provider === 'youtube' || embed.provider === 'vimeo';
@@ -139,7 +158,7 @@ type Props = {
 
 export default function ReelShowcase({ client, summary, videos, images, orientation, instagramUrl }: Props) {
   const [index, setIndex] = useState(0);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [canExpandSummary, setCanExpandSummary] = useState(false);
   const summaryRef = useRef<HTMLParagraphElement>(null);
@@ -154,6 +173,7 @@ export default function ReelShowcase({ client, summary, videos, images, orientat
   // more items to one with fewer crashes on videos[index]/images[index]
   // being undefined for that one render.
   const safeIndex = Math.min(index, Math.max(activeCount - 1, 0));
+  const activeMediaUrl = hasVideos ? videos[safeIndex]?.url : hasImages ? images[safeIndex] : undefined;
 
   // A new case study is a fresh viewing session - start its carousel from
   // the first item and collapse any previously-expanded description.
@@ -161,6 +181,19 @@ export default function ReelShowcase({ client, summary, videos, images, orientat
     setIndex(0);
     setExpanded(false);
   }, [client]);
+
+  // Every reel/video switch mounts a brand-new <video>/<iframe> element, and
+  // mobile Safari silently forces each new one to start muted regardless of
+  // what we request - it doesn't tell us when it does this. If our `muted`
+  // state stayed false across the switch, the mute button would show
+  // "sound is on" while the video was actually silent, and tapping it would
+  // send a mute command instead of unmute (since it trusts the stale
+  // state) - the exact "have to mute/unmute again and again" bug. Resetting
+  // to the one state every browser is guaranteed to honor keeps the button
+  // and the real playback state in sync, so a single tap reliably unmutes.
+  useEffect(() => {
+    setMuted(true);
+  }, [activeMediaUrl]);
 
   useEffect(() => {
     if (expanded) return;
