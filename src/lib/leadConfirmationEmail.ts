@@ -63,10 +63,10 @@ export function leadConfirmationEmail(data: { name: string; message: string }) {
     <p style="font-size: 14px; color: #6b6275;">
       Feel free to reply directly to this email if there&apos;s anything else you&apos;d like to add.
     </p>
-    <p style="font-size: 14px; margin-top: 32px;">— The Insights Mafia team</p>
+    <p style="font-size: 14px; margin-top: 32px;">— Insights Mafia team</p>
   `);
 
-  const text = `Thanks, ${data.name} — we've got your message.\n\nOur team will connect with you within one business day.\n\nYour message:\n${data.message}\n\nIn the meantime, take a look at some of our recent work: https://www.insightsmafia.com/work\n\n— The Insights Mafia team`;
+  const text = `Thanks, ${data.name} — we've got your message.\n\nOur team will connect with you within one business day.\n\nYour message:\n${data.message}\n\nIn the meantime, take a look at some of our recent work: https://www.insightsmafia.com/work\n\n— Insights Mafia team`;
 
   return { html, text };
 }
