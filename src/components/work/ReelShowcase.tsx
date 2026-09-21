@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/ui/Button';
 import { getVideoEmbed } from '@/lib/videoEmbed';
 import { VideoItem } from '@/lib/normalizeVideos';
+import { proxyImage } from '@/lib/imageProxy';
 
 function ArrowButton({ dir, onClick }: { dir: 'left' | 'right'; onClick: () => void }) {
   return (
@@ -36,12 +37,10 @@ function FullscreenButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-function InstagramIcon() {
+function ViewMoreIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none" />
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   );
 }
@@ -133,21 +132,31 @@ type Props = {
   client: string | null;
   summary: string | null;
   videos: VideoItem[];
+  images: string[];
   orientation: 'vertical' | 'horizontal';
   instagramUrl?: string | null;
 };
 
-export default function ReelShowcase({ client, summary, videos, orientation, instagramUrl }: Props) {
+export default function ReelShowcase({ client, summary, videos, images, orientation, instagramUrl }: Props) {
   const [index, setIndex] = useState(0);
   const [muted, setMuted] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [canExpandSummary, setCanExpandSummary] = useState(false);
   const summaryRef = useRef<HTMLParagraphElement>(null);
   const hasVideos = videos.length > 0;
-  const hasMultiple = videos.length > 1;
+  // Videos take priority when a case study has both - images are the
+  // fallback carousel for case studies that only have stills to show.
+  const hasImages = !hasVideos && images.length > 0;
+  const activeCount = hasVideos ? videos.length : images.length;
+  const hasMultiple = activeCount > 1;
+  // `index` only resets to 0 on the next effect pass, which runs after this
+  // render - clamp it here too, otherwise switching from a case study with
+  // more items to one with fewer crashes on videos[index]/images[index]
+  // being undefined for that one render.
+  const safeIndex = Math.min(index, Math.max(activeCount - 1, 0));
 
-  // A new case study is a fresh viewing session - start its reel carousel
-  // from the first video and collapse any previously-expanded description.
+  // A new case study is a fresh viewing session - start its carousel from
+  // the first item and collapse any previously-expanded description.
   useEffect(() => {
     setIndex(0);
     setExpanded(false);
@@ -166,21 +175,26 @@ export default function ReelShowcase({ client, summary, videos, orientation, ins
   }, [summary, expanded]);
 
   function prev() {
-    setIndex((i) => (i - 1 + videos.length) % videos.length);
+    setIndex((i) => (i - 1 + activeCount) % activeCount);
   }
   function next() {
-    setIndex((i) => (i + 1) % videos.length);
+    setIndex((i) => (i + 1) % activeCount);
   }
 
   const mediaFrame = hasVideos ? (
     <VideoFrame
-      key={videos[index].url}
-      url={videos[index].url}
-      views={videos[index].views}
+      key={videos[safeIndex].url}
+      url={videos[safeIndex].url}
+      views={videos[safeIndex].views}
       frameClassName={orientation === 'vertical' ? 'reel-frame-vertical' : 'reel-frame-horizontal'}
       muted={muted}
       onToggleMute={() => setMuted((m) => !m)}
     />
+  ) : hasImages ? (
+    <div className="reel-frame-image">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={proxyImage(images[safeIndex])} alt={client || 'Case study'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+    </div>
   ) : (
     <div className={orientation === 'vertical' ? 'reel-frame-vertical' : 'reel-frame-horizontal'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#111', color: '#fff', fontSize: 13, fontWeight: 600 }}>
       Video coming soon
@@ -204,8 +218,8 @@ export default function ReelShowcase({ client, summary, videos, orientation, ins
         <Button href="/lets-create" variant="primary">Let&apos;s Create</Button>
         {instagramUrl && (
           <Button href={instagramUrl} target="_blank" rel="noopener noreferrer">
-            <InstagramIcon />
-            Follow us on Instagram
+            <ViewMoreIcon />
+            View More Work
           </Button>
         )}
       </div>
@@ -226,8 +240,8 @@ export default function ReelShowcase({ client, summary, videos, orientation, ins
         </div>
         {hasMultiple && (
           <div className="reel-dots">
-            {videos.map((_, i) => (
-              <span key={i} className={`reel-dot${i === index ? ' active' : ''}`} />
+            {Array.from({ length: activeCount }).map((_, i) => (
+              <span key={i} className={`reel-dot${i === safeIndex ? ' active' : ''}`} />
             ))}
           </div>
         )}

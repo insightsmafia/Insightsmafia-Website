@@ -10,6 +10,7 @@ export type CaseStudy = {
   client: string | null;
   summary: string | null;
   videos: VideoItem[];
+  images: string[];
   videoOrientation: 'vertical' | 'horizontal';
   industry: string | null;
 };
@@ -27,15 +28,12 @@ export default function CategoryCaseStudyBrowser({ projects, instagramUrl }: { p
     setIndex(0);
   }, [industry]);
 
-  // Bring the rectangle itself to the top of the viewport rather than
-  // jumping all the way to the page header - works the same whether the
-  // visitor has scrolled a little (reading the description) or a lot
-  // (down at the client-nav / footer).
+  // Bring the rectangle itself to the vertical center of the viewport
+  // rather than jumping all the way to the page header - works the same
+  // whether the visitor has scrolled a little or a lot, and on any
+  // breakpoint, since it's relative to the viewport, not a fixed offset.
   function scrollToShowcase() {
-    const el = showcaseRef.current;
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - 24;
-    window.scrollTo({ top, behavior: 'smooth' });
+    showcaseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
   function prevClient() {
     setIndex((i) => (i - 1 + filtered.length) % filtered.length);
@@ -82,6 +80,7 @@ export default function CategoryCaseStudyBrowser({ projects, instagramUrl }: { p
               client={active.client}
               summary={active.summary}
               videos={active.videos}
+              images={active.images}
               orientation={active.videoOrientation}
               instagramUrl={instagramUrl}
             />

@@ -43,6 +43,7 @@ export default function AdminWorkCategoryPage() {
       ],
     },
     { name: 'videos', label: 'Reels / videos — upload a file or paste a YouTube, Vimeo, or Instagram link', type: 'videolist' },
+    { name: 'gallery', label: 'Image carousel (used only if there are no videos) — recommended size 1350×1080px', type: 'imagelist' },
     { name: 'categoryIds', label: 'Show under these work categories', type: 'categorylist' },
     { name: 'featured', label: 'Featured', type: 'checkbox' },
     { name: 'published', label: 'Published', type: 'checkbox' },

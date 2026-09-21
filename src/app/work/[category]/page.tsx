@@ -42,14 +42,23 @@ export default async function WorkCategoryPage({ params }: { params: { category:
     }
   });
 
-  const projects = rawProjects.map((p) => ({
-    id: p.id,
-    client: p.client,
-    summary: p.summary,
-    videos: normalizeVideos(p.videos),
-    videoOrientation: p.videoOrientation === 'horizontal' ? ('horizontal' as const) : ('vertical' as const),
-    industry: p.industry || null,
-  }));
+  const projects = rawProjects.map((p) => {
+    let images: string[] = [];
+    try {
+      images = JSON.parse(p.gallery || '[]');
+    } catch {
+      images = [];
+    }
+    return {
+      id: p.id,
+      client: p.client,
+      summary: p.summary,
+      videos: normalizeVideos(p.videos),
+      images,
+      videoOrientation: p.videoOrientation === 'horizontal' ? ('horizontal' as const) : ('vertical' as const),
+      industry: p.industry || null,
+    };
+  });
 
   return (
     <>

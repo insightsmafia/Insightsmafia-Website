@@ -959,6 +959,20 @@ h1, h2, h3 {
   background: #0b0b0f;
 }
 
+/* Image carousel fallback for case studies with no video - defaults to a
+   1350x1080px source size (a 5:4 ratio), used regardless of the vertical/
+   horizontal video-layout setting since it isn't tied to a reel shape. */
+.reel-frame-image {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  aspect-ratio: 1350 / 1080;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0b0b0f;
+}
+
 .reel-arrow {
   position: absolute;
   top: 50%;
