@@ -146,7 +146,12 @@ function VideoFrame({
   fullscreen: boolean;
   onToggleFullscreen: () => void;
 }) {
-  const embed = getVideoEmbed(url, { initialMuted: muted, loop });
+  // Computed once per mount (the parent already keys this component by
+  // url, so a new video mounting is the only time this should change) -
+  // recomputing it on every render would bake the *current* muted state
+  // into a fresh iframe src on every mute toggle, which reloads the
+  // iframe and restarts the video from the beginning.
+  const [embed] = useState(() => getVideoEmbed(url, { initialMuted: muted, loop }));
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const fullscreenStyle = useFullscreenBox(fullscreen, aspectRatio);
