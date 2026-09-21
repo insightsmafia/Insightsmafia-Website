@@ -897,3 +897,174 @@ h1, h2, h3 {
   html { scroll-behavior: auto; }
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* ---- reel-showcase: the case-study hero. A big bordered rectangle split by
+   a floating divider (inset from the edges, not a full crossing line) - a
+   reel/video carousel on one side, client name + description on the other.
+   "vertical" (default) puts the carousel on the left in a tall 9:16 frame;
+   "horizontal" stacks a wide 16:9 video on top instead, since a landscape
+   video doesn't suit the narrow reel column. ---- */
+.reel-showcase {
+  display: flex;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 8px 8px 0 var(--ink);
+  overflow: hidden;
+}
+
+.reel-showcase.horizontal {
+  flex-direction: column;
+}
+
+.reel-showcase-divider {
+  flex-shrink: 0;
+  width: 2px;
+  background: var(--line);
+  margin: 44px 0;
+}
+
+.reel-showcase.horizontal .reel-showcase-divider {
+  width: auto;
+  height: 2px;
+  margin: 0 40px;
+}
+
+.reel-showcase-media {
+  flex-shrink: 0;
+  width: 320px;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.reel-showcase.horizontal .reel-showcase-media {
+  width: auto;
+  padding: 32px 32px 28px;
+}
+
+.reel-media-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.reel-frame-vertical {
+  position: relative;
+  width: 100%;
+  max-width: 240px;
+  margin: 0 auto;
+  aspect-ratio: 9 / 16;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0b0b0f;
+}
+
+.reel-frame-horizontal {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0b0b0f;
+}
+
+.reel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink);
+  z-index: 2;
+  transition: transform 0.15s ease;
+}
+
+.reel-arrow:hover {
+  transform: translateY(-50%) scale(1.08);
+}
+
+.reel-arrow-left {
+  left: 8px;
+}
+
+.reel-arrow-right {
+  right: 8px;
+}
+
+.reel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.reel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line);
+  opacity: 0.35;
+}
+
+.reel-dot.active {
+  opacity: 1;
+  background: var(--purple);
+}
+
+.reel-showcase-info {
+  flex: 1;
+  padding: 36px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.reel-showcase-client {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 4px;
+}
+
+.reel-showcase-year {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+
+.reel-showcase-summary {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0;
+}
+
+@media (max-width: 860px) {
+  .reel-showcase {
+    flex-direction: column;
+  }
+
+  .reel-showcase-media {
+    width: auto;
+    padding: 28px 24px 20px;
+  }
+
+  .reel-showcase-divider {
+    width: auto;
+    height: 2px;
+    margin: 0 32px;
+  }
+
+  .reel-showcase-info {
+    padding: 24px 24px 32px;
+  }
+}

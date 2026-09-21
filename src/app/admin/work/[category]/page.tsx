@@ -31,7 +31,16 @@ export default function AdminWorkCategoryPage() {
     { name: 'body', label: 'Full story (shown on the case study page)', type: 'textarea' },
     { name: 'coverImage', label: 'Cover image', type: 'image' },
     { name: 'gallery', label: 'Gallery images', type: 'imagelist' },
-    { name: 'videoUrl', label: 'Video URL (YouTube, Vimeo, or a direct .mp4 link)', type: 'text' },
+    {
+      name: 'videoOrientation',
+      label: 'Video layout',
+      type: 'select',
+      options: [
+        { value: 'vertical', label: 'Vertical — reel carousel (left) + client info (right)' },
+        { value: 'horizontal', label: 'Horizontal — video on top, client info below' },
+      ],
+    },
+    { name: 'videos', label: 'Reel / video links (YouTube, Vimeo, or a direct .mp4 link)', type: 'urllist', placeholder: 'https://…' },
     { name: 'externalUrl', label: 'External link (e.g. live site, Instagram post)', type: 'text' },
     { name: 'year', label: 'Year', type: 'number' },
     { name: 'order', label: 'Order', type: 'number' },

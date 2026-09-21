@@ -55,7 +55,8 @@ model Project {
   year          Int?
   coverImage    String?
   gallery       String           @default("[]")
-  videoUrl      String?
+  videos          String         @default("[]") // JSON array of video URLs (YouTube/Vimeo/direct file)
+  videoOrientation String        @default("vertical") // "vertical" (reel carousel) | "horizontal" (stacked video)
   externalUrl   String?
   summary       String?
   body          String           @default("[]")

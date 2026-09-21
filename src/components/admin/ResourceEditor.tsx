@@ -11,6 +11,7 @@ export type Field =
   | { name: string; label: string; type: 'checkbox' }
   | { name: string; label: string; type: 'image' }
   | { name: string; label: string; type: 'imagelist' }
+  | { name: string; label: string; type: 'urllist'; placeholder?: string }
   | { name: string; label: string; type: 'select'; options: { value: string; label: string }[] };
 
 type Props = {
@@ -63,7 +64,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
   function openNew() {
     const blank: Item = { published: true, order: items.length };
     for (const f of fields) {
-      if (!(f.name in blank)) blank[f.name] = f.type === 'checkbox' ? false : f.type === 'number' ? 0 : f.type === 'imagelist' ? [] : '';
+      if (!(f.name in blank)) blank[f.name] = f.type === 'checkbox' ? false : f.type === 'number' ? 0 : f.type === 'imagelist' || f.type === 'urllist' ? [] : '';
     }
     setEditing({ ...blank, ...defaults });
   }
@@ -71,7 +72,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
   function openEdit(item: Item) {
     const draft = { ...item };
     for (const f of fields) {
-      if (f.type === 'imagelist') {
+      if (f.type === 'imagelist' || f.type === 'urllist') {
         try {
           draft[f.name] = JSON.parse(item[f.name] || '[]');
         } catch {
@@ -88,7 +89,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
     const payload: Item = { ...defaults };
     for (const f of fields) {
       const v = editing[f.name];
-      payload[f.name] = f.type === 'number' ? Number(v || 0) : f.type === 'imagelist' ? JSON.stringify(v || []) : v;
+      payload[f.name] = f.type === 'number' ? Number(v || 0) : f.type === 'imagelist' || f.type === 'urllist' ? JSON.stringify(v || []) : v;
     }
     if ('published' in editing) payload.published = editing.published;
     if ('order' in editing) payload.order = Number(editing.order || 0);
@@ -276,6 +277,43 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                         onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as string[]) ?? []), ''] })}
                       >
                         + Add image
+                      </button>
+                    </div>
+                  ) : f.type === 'urllist' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {((editing[f.name] as string[]) ?? []).map((url: string, idx: number) => (
+                        <div key={idx} style={{ display: 'flex', gap: 8 }}>
+                          <input
+                            type="text"
+                            value={url}
+                            placeholder={f.placeholder}
+                            onChange={(e) => {
+                              const next = [...(editing[f.name] as string[])];
+                              next[idx] = e.target.value;
+                              setEditing({ ...editing, [f.name]: next });
+                            }}
+                            style={{ ...fieldStyle, flex: 1 }}
+                          />
+                          <button
+                            type="button"
+                            className="btn"
+                            style={{ padding: '8px 10px', fontSize: 12, color: 'var(--coral)', flexShrink: 0 }}
+                            onClick={() => {
+                              const next = (editing[f.name] as string[]).filter((_: string, i: number) => i !== idx);
+                              setEditing({ ...editing, [f.name]: next });
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        className="btn"
+                        style={{ padding: '8px 14px', fontSize: 13, alignSelf: 'flex-start' }}
+                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as string[]) ?? []), ''] })}
+                      >
+                        + Add video link
                       </button>
                     </div>
                   ) : f.type === 'select' ? (
