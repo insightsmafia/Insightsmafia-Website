@@ -7,6 +7,8 @@ import Reveal from '@/components/ui/Reveal';
 import CategoryCaseStudyBrowser from '@/components/work/CategoryCaseStudyBrowser';
 import { prisma } from '@/lib/db';
 import { getSettings } from '@/lib/settings';
+import { INDUSTRIES } from '@/lib/industries';
+import { normalizeVideos } from '@/lib/normalizeVideos';
 
 export async function generateMetadata({ params }: { params: { category: string } }): Promise<Metadata> {
   const category = await prisma.projectCategory.findUnique({ where: { slug: params.category } });
@@ -21,29 +23,33 @@ export default async function WorkCategoryPage({ params }: { params: { category:
   const category = await prisma.projectCategory.findUnique({ where: { slug: params.category } });
   if (!category) notFound();
 
-  const [rawProjects, settings] = await Promise.all([
+  // A case study can be assigned to more than one work category, so we fetch
+  // every published project and filter by whether its categoryIds includes
+  // this category, rather than a single-category DB-level where clause.
+  const [allPublished, settings] = await Promise.all([
     prisma.project.findMany({
-      where: { categoryId: category.id, published: true },
+      where: { published: true },
       orderBy: { order: 'asc' },
     }),
     getSettings(),
   ]);
 
-  const projects = rawProjects.map((p) => {
-    let videos: string[] = [];
+  const rawProjects = allPublished.filter((p) => {
     try {
-      videos = JSON.parse(p.videos || '[]');
+      return JSON.parse(p.categoryIds || '[]').includes(category.id);
     } catch {
-      videos = [];
+      return false;
     }
-    return {
-      id: p.id,
-      client: p.client,
-      summary: p.summary,
-      videos,
-      videoOrientation: p.videoOrientation === 'horizontal' ? ('horizontal' as const) : ('vertical' as const),
-    };
   });
+
+  const projects = rawProjects.map((p) => ({
+    id: p.id,
+    client: p.client,
+    summary: p.summary,
+    videos: normalizeVideos(p.videos),
+    videoOrientation: p.videoOrientation === 'horizontal' ? ('horizontal' as const) : ('vertical' as const),
+    industry: p.industry || null,
+  }));
 
   return (
     <>
@@ -55,9 +61,14 @@ export default async function WorkCategoryPage({ params }: { params: { category:
               <Link href="/work" style={{ color: 'inherit', textDecoration: 'none' }}>← All work</Link>
             </p>
             <h1 style={{ fontWeight: 800, fontSize: 'clamp(32px,5vw,52px)', lineHeight: 1.1, marginBottom: 20 }}>{category.label}</h1>
-            <p style={{ fontSize: 17, lineHeight: 1.6, color: 'var(--muted)', maxWidth: 560, marginBottom: 56 }}>
-              Case studies from our {category.label.toLowerCase()} work.
+            <p style={{ fontSize: 17, lineHeight: 1.6, color: 'var(--muted)', maxWidth: 560, marginBottom: 20 }}>
+              Case studies from our {category.label.toLowerCase()} work — for brands across industries like Jewellery, Fashion, Beauty, Automotive, Real Estate, Food & Beverage, Healthcare, Pharmaceuticals, Education, Hospitality, FMCG and E-commerce.
             </p>
+            <div className="industry-chip-row">
+              {INDUSTRIES.map((i) => (
+                <span key={i} className="industry-chip">{i}</span>
+              ))}
+            </div>
           </Reveal>
 
           {projects.length === 0 ? (

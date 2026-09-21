@@ -16,8 +16,18 @@ function slugify(str: string) {
 // name so the still-required, still-unique DB columns stay satisfied.
 export const { GET, POST, PATCH, DELETE } = crudHandlers(prisma.project, { order: 'asc' }, (data) => {
   const client = String(data.client || '').trim();
+  let categoryIds = data.categoryIds;
+  try {
+    const parsed = JSON.parse(categoryIds || '[]');
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      categoryIds = JSON.stringify(data.categoryId ? [data.categoryId] : []);
+    }
+  } catch {
+    categoryIds = JSON.stringify(data.categoryId ? [data.categoryId] : []);
+  }
   return {
     ...data,
+    categoryIds,
     title: data.title || client || 'Case study',
     slug: data.slug || `${slugify(client)}-${Date.now().toString(36)}`,
   };

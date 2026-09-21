@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import ResourceEditor, { Field } from '@/components/admin/ResourceEditor';
+import { INDUSTRIES } from '@/lib/industries';
 
 type Category = { id: string; slug: string; label: string };
 
@@ -27,6 +28,12 @@ export default function AdminWorkCategoryPage() {
     { name: 'client', label: 'Client name', type: 'text', required: true },
     { name: 'summary', label: 'Description', type: 'textarea' },
     {
+      name: 'industry',
+      label: 'Industry',
+      type: 'select',
+      options: INDUSTRIES.map((i) => ({ value: i, label: i })),
+    },
+    {
       name: 'videoOrientation',
       label: 'Video layout',
       type: 'select',
@@ -36,6 +43,7 @@ export default function AdminWorkCategoryPage() {
       ],
     },
     { name: 'videos', label: 'Reels / videos — upload a file or paste a YouTube, Vimeo, or Instagram link', type: 'videolist' },
+    { name: 'categoryIds', label: 'Show under these work categories', type: 'categorylist' },
     { name: 'featured', label: 'Featured', type: 'checkbox' },
     { name: 'published', label: 'Published', type: 'checkbox' },
   ];
@@ -46,8 +54,14 @@ export default function AdminWorkCategoryPage() {
       title={`Case studies — ${category.label}`}
       reorderable
       fields={fields}
-      defaults={{ categoryId: category.id }}
-      filter={(p) => p.categoryId === category.id}
+      defaults={{ categoryId: category.id, categoryIds: [category.id] }}
+      filter={(p) => {
+        try {
+          return JSON.parse(p.categoryIds || '[]').includes(category.id);
+        } catch {
+          return false;
+        }
+      }}
       getLabel={(p) => p.client || 'Untitled client'}
       getSubtitle={(p) => p.summary || ''}
     />

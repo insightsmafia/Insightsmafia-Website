@@ -57,6 +57,8 @@ model Project {
   gallery       String           @default("[]")
   videos          String         @default("[]") // JSON array of video URLs (YouTube/Vimeo/direct file)
   videoOrientation String        @default("vertical") // "vertical" (reel carousel) | "horizontal" (stacked video)
+  categoryIds   String           @default("[]") // JSON array of ProjectCategory ids this case study should show under (a case study can appear in more than one work category)
+  industry      String           @default("") // one of the fixed industry list in src/lib/industries.ts, used for the "What are you looking for?" filter
   externalUrl   String?
   summary       String?
   body          String           @default("[]")

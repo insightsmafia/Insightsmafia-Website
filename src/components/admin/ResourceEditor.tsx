@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import ImageUploadField from './ImageUploadField';
 import VideoUploadField from './VideoUploadField';
+import CategoryCheckboxList from './CategoryCheckboxList';
+import { normalizeVideos, VideoItem } from '@/lib/normalizeVideos';
 
 type Item = Record<string, any>;
 
@@ -13,6 +15,7 @@ export type Field =
   | { name: string; label: string; type: 'image' }
   | { name: string; label: string; type: 'imagelist' }
   | { name: string; label: string; type: 'videolist' }
+  | { name: string; label: string; type: 'categorylist' }
   | { name: string; label: string; type: 'select'; options: { value: string; label: string }[] };
 
 type Props = {
@@ -70,7 +73,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
   function openNew() {
     const blank: Item = { published: true, order: items.length };
     for (const f of fields) {
-      if (!(f.name in blank)) blank[f.name] = f.type === 'checkbox' ? false : f.type === 'number' ? 0 : f.type === 'imagelist' || f.type === 'videolist' ? [] : '';
+      if (!(f.name in blank)) blank[f.name] = f.type === 'checkbox' ? false : f.type === 'number' ? 0 : f.type === 'imagelist' || f.type === 'videolist' || f.type === 'categorylist' ? [] : '';
     }
     setEditing({ ...blank, ...defaults });
   }
@@ -78,7 +81,9 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
   function openEdit(item: Item) {
     const draft = { ...item };
     for (const f of fields) {
-      if (f.type === 'imagelist' || f.type === 'videolist') {
+      if (f.type === 'videolist') {
+        draft[f.name] = normalizeVideos(item[f.name]);
+      } else if (f.type === 'imagelist' || f.type === 'categorylist') {
         try {
           draft[f.name] = JSON.parse(item[f.name] || '[]');
         } catch {
@@ -103,7 +108,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
     const payload: Item = { ...defaults };
     for (const f of fields) {
       const v = editing[f.name];
-      payload[f.name] = f.type === 'number' ? Number(v || 0) : f.type === 'imagelist' || f.type === 'videolist' ? JSON.stringify(v || []) : v;
+      payload[f.name] = f.type === 'number' ? Number(v || 0) : f.type === 'imagelist' || f.type === 'videolist' || f.type === 'categorylist' ? JSON.stringify(v || []) : v;
     }
     if ('published' in editing) payload.published = editing.published;
     if ('order' in editing) payload.order = Number(editing.order || 0);
@@ -294,39 +299,59 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                       </button>
                     </div>
                   ) : f.type === 'videolist' ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {((editing[f.name] as string[]) ?? []).map((url: string, idx: number) => (
-                        <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                          <VideoUploadField
-                            value={url}
-                            onChange={(newUrl) => {
-                              const next = [...(editing[f.name] as string[])];
-                              next[idx] = newUrl;
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      {((editing[f.name] as VideoItem[]) ?? []).map((item: VideoItem, idx: number) => (
+                        <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 8, border: '2px solid var(--line)', borderRadius: 10, padding: 10 }}>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                            <div style={{ flex: 1 }}>
+                              <VideoUploadField
+                                value={item.url}
+                                onChange={(newUrl) => {
+                                  const next = [...(editing[f.name] as VideoItem[])];
+                                  next[idx] = { ...next[idx], url: newUrl };
+                                  setEditing({ ...editing, [f.name]: next });
+                                }}
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              className="btn"
+                              style={{ padding: '8px 10px', fontSize: 12, color: 'var(--coral)', flexShrink: 0 }}
+                              onClick={() => {
+                                const next = (editing[f.name] as VideoItem[]).filter((_, i) => i !== idx);
+                                setEditing({ ...editing, [f.name]: next });
+                              }}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                          <input
+                            type="text"
+                            value={item.views ?? ''}
+                            onChange={(e) => {
+                              const next = [...(editing[f.name] as VideoItem[])];
+                              next[idx] = { ...next[idx], views: e.target.value };
                               setEditing({ ...editing, [f.name]: next });
                             }}
+                            placeholder="Views to display (e.g. 1.2M) — optional"
+                            style={{ ...fieldStyle, width: '100%' }}
                           />
-                          <button
-                            type="button"
-                            className="btn"
-                            style={{ padding: '8px 10px', fontSize: 12, color: 'var(--coral)', flexShrink: 0 }}
-                            onClick={() => {
-                              const next = (editing[f.name] as string[]).filter((_: string, i: number) => i !== idx);
-                              setEditing({ ...editing, [f.name]: next });
-                            }}
-                          >
-                            Remove
-                          </button>
                         </div>
                       ))}
                       <button
                         type="button"
                         className="btn"
                         style={{ padding: '8px 14px', fontSize: 13, alignSelf: 'flex-start' }}
-                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as string[]) ?? []), ''] })}
+                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as VideoItem[]) ?? []), { url: '', views: '' }] })}
                       >
                         + Add video link
                       </button>
                     </div>
+                  ) : f.type === 'categorylist' ? (
+                    <CategoryCheckboxList
+                      value={(editing[f.name] as string[]) ?? []}
+                      onChange={(next) => setEditing({ ...editing, [f.name]: next })}
+                    />
                   ) : f.type === 'select' ? (
                     <select
                       value={editing[f.name] ?? ''}
