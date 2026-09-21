@@ -83,14 +83,13 @@ function VideoFrame({ url, frameClassName, muted, onToggleMute }: { url: string;
 
 type Props = {
   client: string | null;
-  year: number | null;
   summary: string | null;
   videos: string[];
   orientation: 'vertical' | 'horizontal';
-  externalUrl?: string | null;
+  instagramUrl?: string | null;
 };
 
-export default function ReelShowcase({ client, year, summary, videos, orientation, externalUrl }: Props) {
+export default function ReelShowcase({ client, summary, videos, orientation, instagramUrl }: Props) {
   const [index, setIndex] = useState(0);
   const [muted, setMuted] = useState(true);
   const hasVideos = videos.length > 0;
@@ -120,11 +119,14 @@ export default function ReelShowcase({ client, year, summary, videos, orientatio
   const infoBlock = (
     <div className="reel-showcase-info">
       <p className="reel-showcase-client">{client || 'Client'}</p>
-      {year && <p className="reel-showcase-year">{year}</p>}
       {summary && <p className="reel-showcase-summary">{summary}</p>}
       <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 20 }}>
         <Button href="/lets-create" variant="primary">Let&apos;s Create</Button>
-        {externalUrl && <Button href={externalUrl}>View Live ↗</Button>}
+        {instagramUrl && (
+          <Button href={instagramUrl} target="_blank" rel="noopener noreferrer">
+            See more ↗
+          </Button>
+        )}
       </div>
     </div>
   );

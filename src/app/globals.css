@@ -263,15 +263,6 @@ h1, h2, h3 {
   background: var(--surface);
 }
 
-.work-tile-blob {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  opacity: 0.9;
-  z-index: 0;
-}
-
 .work-tile-icon-wrap {
   position: relative;
   z-index: 1;
@@ -340,10 +331,6 @@ h1, h2, h3 {
   .work-tile:hover:not(:active) {
     transform: none;
     box-shadow: 5px 5px 0 var(--accent);
-  }
-
-  .work-tile-blob {
-    display: none;
   }
 
   .work-tile-icon-wrap {
@@ -932,7 +919,7 @@ h1, h2, h3 {
 
 .reel-showcase-media {
   flex-shrink: 0;
-  width: 320px;
+  width: 40%;
   padding: 36px 32px;
   display: flex;
   flex-direction: column;
@@ -941,7 +928,7 @@ h1, h2, h3 {
 }
 
 .reel-showcase.horizontal .reel-showcase-media {
-  width: auto;
+  width: 100%;
   padding: 32px 32px 28px;
 }
 

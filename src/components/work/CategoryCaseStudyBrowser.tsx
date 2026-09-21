@@ -6,14 +6,12 @@ import ReelShowcase from './ReelShowcase';
 export type CaseStudy = {
   id: string;
   client: string | null;
-  year: number | null;
   summary: string | null;
   videos: string[];
   videoOrientation: 'vertical' | 'horizontal';
-  externalUrl: string | null;
 };
 
-export default function CategoryCaseStudyBrowser({ projects }: { projects: CaseStudy[] }) {
+export default function CategoryCaseStudyBrowser({ projects, instagramUrl }: { projects: CaseStudy[]; instagramUrl?: string | null }) {
   const [index, setIndex] = useState(0);
   const active = projects[index];
   const hasMultiple = projects.length > 1;
@@ -29,11 +27,10 @@ export default function CategoryCaseStudyBrowser({ projects }: { projects: CaseS
     <div>
       <ReelShowcase
         client={active.client}
-        year={active.year}
         summary={active.summary}
         videos={active.videos}
         orientation={active.videoOrientation}
-        externalUrl={active.externalUrl}
+        instagramUrl={instagramUrl}
       />
       {hasMultiple && (
         <div className="client-nav">

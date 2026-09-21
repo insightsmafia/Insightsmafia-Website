@@ -36,9 +36,6 @@ export default function AdminWorkCategoryPage() {
       ],
     },
     { name: 'videos', label: 'Reels / videos — upload a file or paste a YouTube, Vimeo, or Instagram link', type: 'videolist' },
-    { name: 'externalUrl', label: 'External link (e.g. live site, Instagram post)', type: 'text' },
-    { name: 'year', label: 'Year', type: 'number' },
-    { name: 'order', label: 'Order', type: 'number' },
     { name: 'featured', label: 'Featured', type: 'checkbox' },
     { name: 'published', label: 'Published', type: 'checkbox' },
   ];

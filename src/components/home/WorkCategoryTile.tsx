@@ -2,14 +2,6 @@ import Link from 'next/link';
 
 const bgFor = (i: number) => ['var(--coral)', 'var(--yellow)', 'var(--purple)'][i % 3];
 
-// bottom-right / top-right / bottom-left corner for the decorative blob, one per tile index.
-const blobCorner: Record<string, React.CSSProperties> = {
-  br: { bottom: -46, right: -46 },
-  tr: { top: -46, right: -46 },
-  bl: { bottom: -46, left: -46 },
-};
-const blobPattern = ['br', 'tr', 'br', 'tr', 'bl', 'tr', 'br', 'br'];
-
 const icons: Record<string, JSX.Element> = {
   'film-making': (
     <>
@@ -68,8 +60,6 @@ export default function WorkCategoryTile({ slug, label, i }: { slug: string; lab
       className="card-flat svc-card work-tile"
       style={{ ['--accent' as string]: color } as React.CSSProperties}
     >
-      <div className="work-tile-blob" aria-hidden="true" style={{ background: color, ...blobCorner[blobPattern[i % blobPattern.length]] }} />
-
       <div className="work-tile-icon-wrap">
         <span className="work-tile-icon-bg" style={{ background: color }} />
         <svg

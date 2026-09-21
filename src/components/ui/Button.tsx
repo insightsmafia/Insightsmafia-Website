@@ -6,13 +6,15 @@ type Props = {
   variant?: 'default' | 'primary' | 'coral';
   onClick?: () => void;
   type?: 'button' | 'submit';
+  target?: string;
+  rel?: string;
 };
 
-export default function Button({ href, children, variant = 'default', onClick, type = 'button' }: Props) {
+export default function Button({ href, children, variant = 'default', onClick, type = 'button', target, rel }: Props) {
   const cls = `btn ${variant === 'primary' ? 'btn-primary' : ''} ${variant === 'coral' ? 'btn-coral' : ''}`;
   if (href) {
     return (
-      <a href={href} className={cls}>
+      <a href={href} className={cls} target={target} rel={rel}>
         {children}
       </a>
     );

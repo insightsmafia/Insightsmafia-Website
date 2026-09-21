@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer';
 import Reveal from '@/components/ui/Reveal';
 import CategoryCaseStudyBrowser from '@/components/work/CategoryCaseStudyBrowser';
 import { prisma } from '@/lib/db';
+import { getSettings } from '@/lib/settings';
 
 export async function generateMetadata({ params }: { params: { category: string } }): Promise<Metadata> {
   const category = await prisma.projectCategory.findUnique({ where: { slug: params.category } });
@@ -20,10 +21,13 @@ export default async function WorkCategoryPage({ params }: { params: { category:
   const category = await prisma.projectCategory.findUnique({ where: { slug: params.category } });
   if (!category) notFound();
 
-  const rawProjects = await prisma.project.findMany({
-    where: { categoryId: category.id, published: true },
-    orderBy: { order: 'asc' },
-  });
+  const [rawProjects, settings] = await Promise.all([
+    prisma.project.findMany({
+      where: { categoryId: category.id, published: true },
+      orderBy: { order: 'asc' },
+    }),
+    getSettings(),
+  ]);
 
   const projects = rawProjects.map((p) => {
     let videos: string[] = [];
@@ -35,11 +39,9 @@ export default async function WorkCategoryPage({ params }: { params: { category:
     return {
       id: p.id,
       client: p.client,
-      year: p.year,
       summary: p.summary,
       videos,
       videoOrientation: p.videoOrientation === 'horizontal' ? ('horizontal' as const) : ('vertical' as const),
-      externalUrl: p.externalUrl,
     };
   });
 
@@ -65,7 +67,7 @@ export default async function WorkCategoryPage({ params }: { params: { category:
             </div>
           ) : (
             <Reveal>
-              <CategoryCaseStudyBrowser projects={projects} />
+              <CategoryCaseStudyBrowser projects={projects} instagramUrl={settings.social?.instagram} />
             </Reveal>
           )}
         </div>
