@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/ui/Button';
 import { getVideoEmbed } from '@/lib/videoEmbed';
+import { VideoItem } from '@/lib/normalizeVideos';
 
 function ArrowButton({ dir, onClick }: { dir: 'left' | 'right'; onClick: () => void }) {
   return (
@@ -45,10 +46,22 @@ function InstagramIcon() {
   );
 }
 
+function ViewsBadge({ views }: { views: string }) {
+  return (
+    <div className="reel-views-badge">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+      {views} views
+    </div>
+  );
+}
+
 // YouTube and Vimeo expose a postMessage API for toggling mute after the
 // embed loads; Instagram's public /embed iframe doesn't expose one, so no
 // mute button is shown for it and it falls back to its own click-to-play UI.
-function VideoFrame({ url, frameClassName, muted, onToggleMute }: { url: string; frameClassName: string; muted: boolean; onToggleMute: () => void }) {
+function VideoFrame({ url, views, frameClassName, muted, onToggleMute }: { url: string; views?: string; frameClassName: string; muted: boolean; onToggleMute: () => void }) {
   const embed = getVideoEmbed(url);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -107,6 +120,7 @@ function VideoFrame({ url, frameClassName, muted, onToggleMute }: { url: string;
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
       )}
+      {views && <ViewsBadge views={views} />}
       <div className="reel-frame-controls">
         {canToggleMute && <MuteButton muted={muted} onToggle={handleToggle} />}
         <FullscreenButton onClick={handleFullscreen} />
@@ -118,7 +132,7 @@ function VideoFrame({ url, frameClassName, muted, onToggleMute }: { url: string;
 type Props = {
   client: string | null;
   summary: string | null;
-  videos: string[];
+  videos: VideoItem[];
   orientation: 'vertical' | 'horizontal';
   instagramUrl?: string | null;
 };
@@ -160,8 +174,9 @@ export default function ReelShowcase({ client, summary, videos, orientation, ins
 
   const mediaFrame = hasVideos ? (
     <VideoFrame
-      key={videos[index]}
-      url={videos[index]}
+      key={videos[index].url}
+      url={videos[index].url}
+      views={videos[index].views}
       frameClassName={orientation === 'vertical' ? 'reel-frame-vertical' : 'reel-frame-horizontal'}
       muted={muted}
       onToggleMute={() => setMuted((m) => !m)}
