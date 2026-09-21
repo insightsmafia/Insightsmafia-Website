@@ -23,9 +23,14 @@ export default async function WorkCategoryPage({ params }: { params: { category:
   const category = await prisma.projectCategory.findUnique({ where: { slug: params.category } });
   if (!category) notFound();
 
-  // A case study can be assigned to more than one work category, so we fetch
-  // every published project and filter by whether its categoryIds includes
-  // this category, rather than a single-category DB-level where clause.
+  // Which category page a case study appears on is decided entirely by
+  // its individual videos/images: each one is tagged with the single work
+  // category it should show under (set in the admin form). A case study
+  // shows here only if at least one of its videos or images is tagged for
+  // this category - there's no separate case-study-level category setting
+  // to keep in sync with those tags, which was the source of an earlier
+  // bug (a video tagged for a category wouldn't show unless the case
+  // study was *also* separately checked into that category).
   const [allPublished, settings] = await Promise.all([
     prisma.project.findMany({
       where: { published: true },
@@ -34,42 +39,21 @@ export default async function WorkCategoryPage({ params }: { params: { category:
     getSettings(),
   ]);
 
-  const rawProjects = allPublished.filter((p) => {
-    try {
-      return JSON.parse(p.categoryIds || '[]').includes(category.id);
-    } catch {
-      return false;
-    }
-  });
-
-  // A video/image with no category tag shows on every category page the
-  // case study is assigned to (the default). One tagged with a specific
-  // category only shows on that one page - this is what lets a single case
-  // study display different creatives per category (e.g. the ad-production
-  // cut on the Ad Production page, the UGC cut on the UGC page) while
-  // sharing the same client name and description everywhere. If tagging
-  // happens to leave nothing for this specific category, fall back to
-  // showing everything the case study has rather than hiding it entirely -
-  // a case study checked into this category should still appear here.
-  const projects = rawProjects.map((p) => {
-    const allVideos = normalizeVideos(p.videos);
-    const allImages = normalizeImages(p.gallery);
-    let videos = allVideos.filter((v) => !v.category || v.category === category.id);
-    let images = allImages.filter((img) => !img.category || img.category === category.id);
-    if (videos.length === 0 && images.length === 0 && (allVideos.length > 0 || allImages.length > 0)) {
-      videos = allVideos;
-      images = allImages;
-    }
-    return {
-      id: p.id,
-      client: p.client,
-      summary: p.summary,
-      videos: videos.map((v) => ({ url: v.url, views: v.views })),
-      images: images.map((img) => img.url),
-      videoOrientation: p.videoOrientation === 'horizontal' ? ('horizontal' as const) : ('vertical' as const),
-      industry: p.industry || null,
-    };
-  });
+  const projects = allPublished
+    .map((p) => {
+      const videos = normalizeVideos(p.videos).filter((v) => v.category === category.id);
+      const images = normalizeImages(p.gallery).filter((img) => img.category === category.id);
+      return {
+        id: p.id,
+        client: p.client,
+        summary: p.summary,
+        videos: videos.map((v) => ({ url: v.url, views: v.views })),
+        images: images.map((img) => img.url),
+        videoOrientation: p.videoOrientation === 'horizontal' ? ('horizontal' as const) : ('vertical' as const),
+        industry: p.industry || null,
+      };
+    })
+    .filter((p) => p.videos.length > 0 || p.images.length > 0);
 
   return (
     <>

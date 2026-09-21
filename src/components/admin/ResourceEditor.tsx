@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import ImageUploadField from './ImageUploadField';
 import VideoUploadField from './VideoUploadField';
-import CategoryCheckboxList from './CategoryCheckboxList';
 import { normalizeVideos, normalizeImages, VideoItem, ImageItem } from '@/lib/normalizeVideos';
 
 type Item = Record<string, any>;
@@ -15,7 +14,6 @@ export type Field =
   | { name: string; label: string; type: 'image' }
   | { name: string; label: string; type: 'imagelist' }
   | { name: string; label: string; type: 'videolist' }
-  | { name: string; label: string; type: 'categorylist' }
   | { name: string; label: string; type: 'select'; options: { value: string; label: string }[] };
 
 type Props = {
@@ -91,7 +89,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
   function openNew() {
     const blank: Item = { published: true, order: items.length };
     for (const f of fields) {
-      if (!(f.name in blank)) blank[f.name] = f.type === 'checkbox' ? false : f.type === 'number' ? 0 : f.type === 'imagelist' || f.type === 'videolist' || f.type === 'categorylist' ? [] : '';
+      if (!(f.name in blank)) blank[f.name] = f.type === 'checkbox' ? false : f.type === 'number' ? 0 : f.type === 'imagelist' || f.type === 'videolist' ? [] : '';
     }
     setEditing({ ...blank, ...defaults });
   }
@@ -103,12 +101,6 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
         draft[f.name] = normalizeVideos(item[f.name]);
       } else if (f.type === 'imagelist') {
         draft[f.name] = normalizeImages(item[f.name]);
-      } else if (f.type === 'categorylist') {
-        try {
-          draft[f.name] = JSON.parse(item[f.name] || '[]');
-        } catch {
-          draft[f.name] = [];
-        }
       }
     }
     setEditing(draft);
@@ -128,7 +120,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
     const payload: Item = { ...defaults };
     for (const f of fields) {
       const v = editing[f.name];
-      payload[f.name] = f.type === 'number' ? Number(v || 0) : f.type === 'imagelist' || f.type === 'videolist' || f.type === 'categorylist' ? JSON.stringify(v || []) : v;
+      payload[f.name] = f.type === 'number' ? Number(v || 0) : f.type === 'imagelist' || f.type === 'videolist' ? JSON.stringify(v || []) : v;
     }
     if ('published' in editing) payload.published = editing.published;
     if ('order' in editing) payload.order = Number(editing.order || 0);
@@ -358,9 +350,9 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                             }}
                             style={{ ...fieldStyle, width: '100%', fontSize: 13 }}
                           >
-                            <option value="">Show in every category this case study is under</option>
+                            <option value="">— Not shown on any work-category page yet —</option>
                             {workCategoryOptions.map((c) => (
-                              <option key={c.value} value={c.value}>Only show under: {c.label}</option>
+                              <option key={c.value} value={c.value}>Show on: {c.label}</option>
                             ))}
                           </select>
                         </div>
@@ -369,7 +361,7 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                         type="button"
                         className="btn"
                         style={{ padding: '8px 14px', fontSize: 13, alignSelf: 'flex-start' }}
-                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as ImageItem[]) ?? []), { url: '', category: '' }] })}
+                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as ImageItem[]) ?? []), { url: '', category: defaults.categoryId || '' }] })}
                       >
                         + Add image
                       </button>
@@ -440,9 +432,9 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                             }}
                             style={{ ...fieldStyle, width: '100%', fontSize: 13 }}
                           >
-                            <option value="">Show in every category this case study is under</option>
+                            <option value="">— Not shown on any work-category page yet —</option>
                             {workCategoryOptions.map((c) => (
-                              <option key={c.value} value={c.value}>Only show under: {c.label}</option>
+                              <option key={c.value} value={c.value}>Show on: {c.label}</option>
                             ))}
                           </select>
                         </div>
@@ -451,16 +443,11 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                         type="button"
                         className="btn"
                         style={{ padding: '8px 14px', fontSize: 13, alignSelf: 'flex-start' }}
-                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as VideoItem[]) ?? []), { url: '', views: '', category: '' }] })}
+                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as VideoItem[]) ?? []), { url: '', views: '', category: defaults.categoryId || '' }] })}
                       >
                         + Add video link
                       </button>
                     </div>
-                  ) : f.type === 'categorylist' ? (
-                    <CategoryCheckboxList
-                      value={(editing[f.name] as string[]) ?? []}
-                      onChange={(next) => setEditing({ ...editing, [f.name]: next })}
-                    />
                   ) : f.type === 'select' ? (
                     <select
                       value={editing[f.name] ?? ''}

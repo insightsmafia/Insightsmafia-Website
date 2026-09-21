@@ -42,9 +42,16 @@ export default function AdminWorkCategoryPage() {
         { value: 'horizontal', label: 'Horizontal — video on top, client info below' },
       ],
     },
-    { name: 'videos', label: 'Reels / videos — upload a file or paste a YouTube, Vimeo, or Instagram link', type: 'videolist' },
-    { name: 'gallery', label: 'Image carousel (used only if there are no videos) — recommended size 1350×1080px', type: 'imagelist' },
-    { name: 'categoryIds', label: 'Show under these work categories', type: 'categorylist' },
+    {
+      name: 'videos',
+      label: 'Reels / videos — upload a file or paste a YouTube, Vimeo, or Instagram link. The category picked per video controls which work-category page it shows on.',
+      type: 'videolist',
+    },
+    {
+      name: 'gallery',
+      label: 'Image carousel (used only if there are no videos) — recommended size 1350×1080px. Same per-image category picker controls where each one shows.',
+      type: 'imagelist',
+    },
     { name: 'featured', label: 'Featured', type: 'checkbox' },
     { name: 'published', label: 'Published', type: 'checkbox' },
   ];
@@ -55,14 +62,8 @@ export default function AdminWorkCategoryPage() {
       title={`Case studies — ${category.label}`}
       reorderable
       fields={fields}
-      defaults={{ categoryId: category.id, categoryIds: [category.id] }}
-      filter={(p) => {
-        try {
-          return JSON.parse(p.categoryIds || '[]').includes(category.id);
-        } catch {
-          return false;
-        }
-      }}
+      defaults={{ categoryId: category.id }}
+      filter={(p) => p.categoryId === category.id}
       getLabel={(p) => p.client || 'Untitled client'}
       getSubtitle={(p) => p.summary || ''}
     />
