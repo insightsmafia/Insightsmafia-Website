@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import ImageUploadField from './ImageUploadField';
 import VideoUploadField from './VideoUploadField';
 import CategoryCheckboxList from './CategoryCheckboxList';
-import { normalizeVideos, VideoItem } from '@/lib/normalizeVideos';
+import { normalizeVideos, normalizeImages, VideoItem, ImageItem } from '@/lib/normalizeVideos';
 
 type Item = Record<string, any>;
 
@@ -53,6 +53,24 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
   const [loading, setLoading] = useState(true);
   const dragIndex = useRef<number | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  // Drag-to-reorder for the per-item image/video rows inside the edit
+  // modal (a separate, smaller drag system from the one above, which
+  // reorders whole resource cards in the list behind the modal).
+  const listDragFrom = useRef<number | null>(null);
+  const [listDragOver, setListDragOver] = useState<{ field: string; index: number } | null>(null);
+  // Only fetched when the form actually has an imagelist/videolist field,
+  // for the per-item "which work category does this show under" dropdown.
+  const [workCategoryOptions, setWorkCategoryOptions] = useState<{ value: string; label: string }[]>([]);
+  const needsWorkCategories = fields.some((f) => f.type === 'imagelist' || f.type === 'videolist');
+
+  useEffect(() => {
+    if (!needsWorkCategories) return;
+    fetch('/api/admin/work-categories', { headers: authHeaders() })
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.ok) setWorkCategoryOptions(json.items.map((c: { id: string; label: string }) => ({ value: c.id, label: c.label })));
+      });
+  }, [needsWorkCategories]);
 
   function load() {
     setLoading(true);
@@ -83,7 +101,9 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
     for (const f of fields) {
       if (f.type === 'videolist') {
         draft[f.name] = normalizeVideos(item[f.name]);
-      } else if (f.type === 'imagelist' || f.type === 'categorylist') {
+      } else if (f.type === 'imagelist') {
+        draft[f.name] = normalizeImages(item[f.name]);
+      } else if (f.type === 'categorylist') {
         try {
           draft[f.name] = JSON.parse(item[f.name] || '[]');
         } catch {
@@ -136,6 +156,27 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
 
   function handleDragStart(index: number) {
     dragIndex.current = index;
+  }
+
+  function handleListDragStart(index: number) {
+    listDragFrom.current = index;
+  }
+
+  function handleListDragOver(e: React.DragEvent, fieldName: string, index: number, arr: any[]) {
+    e.preventDefault();
+    setListDragOver({ field: fieldName, index });
+    const from = listDragFrom.current;
+    if (from === null || from === index || !editing) return;
+    const next = [...arr];
+    const [moved] = next.splice(from, 1);
+    next.splice(index, 0, moved);
+    setEditing({ ...editing, [fieldName]: next });
+    listDragFrom.current = index;
+  }
+
+  function handleListDragEnd() {
+    listDragFrom.current = null;
+    setListDragOver(null);
   }
 
   function handleDragOver(e: React.DragEvent, index: number, item: Item) {
@@ -263,37 +304,72 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                   ) : f.type === 'image' ? (
                     <ImageUploadField value={editing[f.name] ?? ''} onChange={(url) => setEditing({ ...editing, [f.name]: url })} />
                   ) : f.type === 'imagelist' ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {((editing[f.name] as string[]) ?? []).map((url: string, idx: number) => (
-                        <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                          <div style={{ flex: 1 }}>
-                            <ImageUploadField
-                              value={url}
-                              onChange={(newUrl) => {
-                                const next = [...(editing[f.name] as string[])];
-                                next[idx] = newUrl;
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      {((editing[f.name] as ImageItem[]) ?? []).map((item: ImageItem, idx: number) => (
+                        <div
+                          key={idx}
+                          draggable
+                          onDragStart={() => handleListDragStart(idx)}
+                          onDragOver={(e) => handleListDragOver(e, f.name, idx, editing[f.name] as ImageItem[])}
+                          onDrop={(e) => e.preventDefault()}
+                          onDragEnd={handleListDragEnd}
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 8,
+                            border: '2px solid var(--line)',
+                            borderRadius: 10,
+                            padding: 10,
+                            outline: listDragOver?.field === f.name && listDragOver.index === idx ? '2px dashed var(--purple)' : undefined,
+                          }}
+                        >
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                            <span style={{ cursor: 'grab', display: 'flex', alignItems: 'center', paddingTop: 12, flexShrink: 0 }} title="Drag to reorder">
+                              <GripIcon />
+                            </span>
+                            <div style={{ flex: 1 }}>
+                              <ImageUploadField
+                                value={item.url}
+                                onChange={(newUrl) => {
+                                  const next = [...(editing[f.name] as ImageItem[])];
+                                  next[idx] = { ...next[idx], url: newUrl };
+                                  setEditing({ ...editing, [f.name]: next });
+                                }}
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              className="btn"
+                              style={{ padding: '8px 10px', fontSize: 12, color: 'var(--coral)', flexShrink: 0 }}
+                              onClick={() => {
+                                const next = (editing[f.name] as ImageItem[]).filter((_, i) => i !== idx);
                                 setEditing({ ...editing, [f.name]: next });
                               }}
-                            />
+                            >
+                              Remove
+                            </button>
                           </div>
-                          <button
-                            type="button"
-                            className="btn"
-                            style={{ padding: '8px 10px', fontSize: 12, color: 'var(--coral)', flexShrink: 0 }}
-                            onClick={() => {
-                              const next = (editing[f.name] as string[]).filter((_: string, i: number) => i !== idx);
+                          <select
+                            value={item.category ?? ''}
+                            onChange={(e) => {
+                              const next = [...(editing[f.name] as ImageItem[])];
+                              next[idx] = { ...next[idx], category: e.target.value };
                               setEditing({ ...editing, [f.name]: next });
                             }}
+                            style={{ ...fieldStyle, width: '100%', fontSize: 13 }}
                           >
-                            Remove
-                          </button>
+                            <option value="">Show in every category this case study is under</option>
+                            {workCategoryOptions.map((c) => (
+                              <option key={c.value} value={c.value}>Only show under: {c.label}</option>
+                            ))}
+                          </select>
                         </div>
                       ))}
                       <button
                         type="button"
                         className="btn"
                         style={{ padding: '8px 14px', fontSize: 13, alignSelf: 'flex-start' }}
-                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as string[]) ?? []), ''] })}
+                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as ImageItem[]) ?? []), { url: '', category: '' }] })}
                       >
                         + Add image
                       </button>
@@ -301,8 +377,27 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                   ) : f.type === 'videolist' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                       {((editing[f.name] as VideoItem[]) ?? []).map((item: VideoItem, idx: number) => (
-                        <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 8, border: '2px solid var(--line)', borderRadius: 10, padding: 10 }}>
+                        <div
+                          key={idx}
+                          draggable
+                          onDragStart={() => handleListDragStart(idx)}
+                          onDragOver={(e) => handleListDragOver(e, f.name, idx, editing[f.name] as VideoItem[])}
+                          onDrop={(e) => e.preventDefault()}
+                          onDragEnd={handleListDragEnd}
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 8,
+                            border: '2px solid var(--line)',
+                            borderRadius: 10,
+                            padding: 10,
+                            outline: listDragOver?.field === f.name && listDragOver.index === idx ? '2px dashed var(--purple)' : undefined,
+                          }}
+                        >
                           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                            <span style={{ cursor: 'grab', display: 'flex', alignItems: 'center', paddingTop: 12, flexShrink: 0 }} title="Drag to reorder">
+                              <GripIcon />
+                            </span>
                             <div style={{ flex: 1 }}>
                               <VideoUploadField
                                 value={item.url}
@@ -336,13 +431,27 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                             placeholder="Views to display (e.g. 1.2M) — optional"
                             style={{ ...fieldStyle, width: '100%' }}
                           />
+                          <select
+                            value={item.category ?? ''}
+                            onChange={(e) => {
+                              const next = [...(editing[f.name] as VideoItem[])];
+                              next[idx] = { ...next[idx], category: e.target.value };
+                              setEditing({ ...editing, [f.name]: next });
+                            }}
+                            style={{ ...fieldStyle, width: '100%', fontSize: 13 }}
+                          >
+                            <option value="">Show in every category this case study is under</option>
+                            {workCategoryOptions.map((c) => (
+                              <option key={c.value} value={c.value}>Only show under: {c.label}</option>
+                            ))}
+                          </select>
                         </div>
                       ))}
                       <button
                         type="button"
                         className="btn"
                         style={{ padding: '8px 14px', fontSize: 13, alignSelf: 'flex-start' }}
-                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as VideoItem[]) ?? []), { url: '', views: '' }] })}
+                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as VideoItem[]) ?? []), { url: '', views: '', category: '' }] })}
                       >
                         + Add video link
                       </button>

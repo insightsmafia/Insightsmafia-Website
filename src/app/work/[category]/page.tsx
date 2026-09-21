@@ -8,7 +8,7 @@ import CategoryCaseStudyBrowser from '@/components/work/CategoryCaseStudyBrowser
 import { prisma } from '@/lib/db';
 import { getSettings } from '@/lib/settings';
 import { INDUSTRIES } from '@/lib/industries';
-import { normalizeVideos } from '@/lib/normalizeVideos';
+import { normalizeVideos, normalizeImages } from '@/lib/normalizeVideos';
 
 export async function generateMetadata({ params }: { params: { category: string } }): Promise<Metadata> {
   const category = await prisma.projectCategory.findUnique({ where: { slug: params.category } });
@@ -42,19 +42,30 @@ export default async function WorkCategoryPage({ params }: { params: { category:
     }
   });
 
+  // A video/image with no category tag shows on every category page the
+  // case study is assigned to (the default). One tagged with a specific
+  // category only shows on that one page - this is what lets a single case
+  // study display different creatives per category (e.g. the ad-production
+  // cut on the Ad Production page, the UGC cut on the UGC page) while
+  // sharing the same client name and description everywhere. If tagging
+  // happens to leave nothing for this specific category, fall back to
+  // showing everything the case study has rather than hiding it entirely -
+  // a case study checked into this category should still appear here.
   const projects = rawProjects.map((p) => {
-    let images: string[] = [];
-    try {
-      images = JSON.parse(p.gallery || '[]');
-    } catch {
-      images = [];
+    const allVideos = normalizeVideos(p.videos);
+    const allImages = normalizeImages(p.gallery);
+    let videos = allVideos.filter((v) => !v.category || v.category === category.id);
+    let images = allImages.filter((img) => !img.category || img.category === category.id);
+    if (videos.length === 0 && images.length === 0 && (allVideos.length > 0 || allImages.length > 0)) {
+      videos = allVideos;
+      images = allImages;
     }
     return {
       id: p.id,
       client: p.client,
       summary: p.summary,
-      videos: normalizeVideos(p.videos),
-      images,
+      videos: videos.map((v) => ({ url: v.url, views: v.views })),
+      images: images.map((img) => img.url),
       videoOrientation: p.videoOrientation === 'horizontal' ? ('horizontal' as const) : ('vertical' as const),
       industry: p.industry || null,
     };
