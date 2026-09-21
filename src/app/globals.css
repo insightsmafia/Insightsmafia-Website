@@ -973,23 +973,20 @@ h1, h2, h3 {
   background: #0b0b0f;
 }
 
-/* CSS-driven "fullscreen" instead of the native Fullscreen API - iOS
+/* A fake-fullscreen overlay instead of the native Fullscreen API - iOS
    Safari has unreliable/inconsistent support for requestFullscreen() on
    embedded third-party iframes (YouTube/Vimeo), so this works everywhere
-   regardless of platform quirks. */
-.reel-frame-fullscreen-active {
-  position: fixed !important;
-  inset: 0 !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: none !important;
-  max-height: none !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-  aspect-ratio: auto !important;
-  z-index: 9999;
+   regardless of platform quirks. This backdrop just fills the letterbox/
+   pillarbox space around the frame; the frame's own exact size and
+   centered position are computed in JS (see useFullscreenBox in
+   ReelShowcase.tsx) and applied as an inline style, since CSS
+   aspect-ratio combined with fixed positioning and auto sizing proved
+   unreliable for this exact shape of layout. */
+.reel-fullscreen-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 9998;
 }
 
 .reel-arrow {

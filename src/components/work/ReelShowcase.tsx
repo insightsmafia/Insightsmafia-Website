@@ -43,6 +43,61 @@ function FullscreenButton({ active, onClick }: { active: boolean; onClick: () =>
   );
 }
 
+// CSS `aspect-ratio` combined with fixed positioning and auto sizing turns
+// out to have real cross-browser quirks here (one centering approach came
+// out vertically off-center, another collapsed the box to zero size,
+// likely because the frame's own content is itself sized as 100% of the
+// frame with no intrinsic size to inform the frame's own auto-sizing).
+// Computing exact pixel dimensions in JS sidesteps all of that ambiguity -
+// the box is always exactly as large as it can be within the viewport
+// while keeping its aspect ratio, and exactly centered, on every
+// breakpoint, recalculated on resize/orientation change.
+function useFullscreenBox(active: boolean, aspectRatio: number): React.CSSProperties | undefined {
+  const [box, setBox] = useState<{ width: number; height: number; top: number; left: number } | null>(null);
+
+  useEffect(() => {
+    if (!active) {
+      setBox(null);
+      return;
+    }
+    function compute() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      let width: number;
+      let height: number;
+      if (vw / vh > aspectRatio) {
+        height = vh;
+        width = vh * aspectRatio;
+      } else {
+        width = vw;
+        height = vw / aspectRatio;
+      }
+      setBox({ width, height, top: (vh - height) / 2, left: (vw - width) / 2 });
+    }
+    compute();
+    window.addEventListener('resize', compute);
+    window.addEventListener('orientationchange', compute);
+    return () => {
+      window.removeEventListener('resize', compute);
+      window.removeEventListener('orientationchange', compute);
+    };
+  }, [active, aspectRatio]);
+
+  if (!active || !box) return undefined;
+  return {
+    position: 'fixed',
+    top: box.top,
+    left: box.left,
+    width: box.width,
+    height: box.height,
+    margin: 0,
+    maxWidth: 'none',
+    maxHeight: 'none',
+    borderRadius: 0,
+    zIndex: 9999,
+  };
+}
+
 function ViewMoreIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -72,6 +127,7 @@ function VideoFrame({
   url,
   views,
   frameClassName,
+  aspectRatio,
   muted,
   onToggleMute,
   loop,
@@ -82,6 +138,7 @@ function VideoFrame({
   url: string;
   views?: string;
   frameClassName: string;
+  aspectRatio: number;
   muted: boolean;
   onToggleMute: () => void;
   loop: boolean;
@@ -92,6 +149,7 @@ function VideoFrame({
   const embed = getVideoEmbed(url, { initialMuted: muted, loop });
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const fullscreenStyle = useFullscreenBox(fullscreen, aspectRatio);
 
   useEffect(() => {
     if (embed.provider === 'file' && videoRef.current) {
@@ -151,7 +209,7 @@ function VideoFrame({
   const canToggleMute = embed.provider === 'file' || embed.provider === 'youtube' || embed.provider === 'vimeo';
 
   return (
-    <div className={`${frameClassName}${fullscreen ? ' reel-frame-fullscreen-active' : ''}`}>
+    <div className={frameClassName} style={fullscreenStyle}>
       {embed.type === 'iframe' ? (
         <iframe
           ref={iframeRef}
@@ -276,12 +334,15 @@ export default function ReelShowcase({ client, summary, videos, images, orientat
     });
   }
 
+  const imageFullscreenStyle = useFullscreenBox(fullscreen && hasImages, 1350 / 1080);
+
   const mediaFrame = hasVideos ? (
     <VideoFrame
       key={videos[safeIndex].url}
       url={videos[safeIndex].url}
       views={videos[safeIndex].views}
       frameClassName={orientation === 'vertical' ? 'reel-frame-vertical' : 'reel-frame-horizontal'}
+      aspectRatio={orientation === 'vertical' ? 9 / 16 : 16 / 9}
       muted={muted}
       onToggleMute={toggleMuted}
       loop={!hasMultiple}
@@ -290,7 +351,7 @@ export default function ReelShowcase({ client, summary, videos, images, orientat
       onToggleFullscreen={() => setFullscreen((f) => !f)}
     />
   ) : hasImages ? (
-    <div className={`reel-frame-image${fullscreen ? ' reel-frame-fullscreen-active' : ''}`}>
+    <div className="reel-frame-image" style={imageFullscreenStyle}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={proxyImage(images[safeIndex])} alt={client || 'Case study'} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
       <div className="reel-frame-controls">
@@ -330,6 +391,7 @@ export default function ReelShowcase({ client, summary, videos, images, orientat
 
   return (
     <div className={`reel-showcase ${orientation}`}>
+      {fullscreen && <div className="reel-fullscreen-backdrop" onClick={() => setFullscreen(false)} />}
       <div className="reel-showcase-media">
         <div className="reel-media-wrap">
           {mediaFrame}

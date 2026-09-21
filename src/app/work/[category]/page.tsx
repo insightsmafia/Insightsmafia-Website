@@ -97,9 +97,11 @@ export default async function WorkCategoryPage({ params }: { params: { category:
               <p style={{ color: 'var(--muted)', fontSize: 14.5 }}>We&apos;re adding {category.label.toLowerCase()} work here shortly.</p>
             </div>
           ) : (
-            <Reveal>
-              <CategoryCaseStudyBrowser projects={projects} instagramUrl={settings.social?.instagram} />
-            </Reveal>
+            // Not wrapped in <Reveal> - its fade-in animation applies a
+            // CSS transform to this subtree, which creates a new
+            // containing block for position:fixed descendants and breaks
+            // the reel showcase's fullscreen overlay positioning.
+            <CategoryCaseStudyBrowser projects={projects} instagramUrl={settings.social?.instagram} />
           )}
         </div>
       </section>
