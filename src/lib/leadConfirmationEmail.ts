@@ -18,20 +18,28 @@ export function leadConfirmationEmail(data: { name: string; message: string }) {
       </p>
       <h1 style="font-size: 22px; margin: 0 0 16px;">Thanks, ${safeName} — we&apos;ve got your message.</h1>
       <p style="font-size: 15px; line-height: 1.6; color: #333;">
-        We&apos;ve received your inquiry and someone from our team will get back to you within one business day.
+        Our team will connect with you within one business day.
       </p>
       <div style="background:#faf7f2; border:1px solid #e5e0d8; border-radius:12px; padding:16px 18px; margin:24px 0;">
         <p style="font-size: 13px; color: #6b6275; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.04em;">Your message</p>
         <p style="font-size: 14.5px; line-height: 1.6; margin: 0;">${safeMessage}</p>
       </div>
+      <p style="font-size: 15px; line-height: 1.6; color: #333; margin-bottom: 18px;">
+        In the meantime, take a look at some of the work we&apos;ve done for other brands:
+      </p>
+      <p style="margin: 0 0 28px;">
+        <a href="https://www.insightsmafia.com/work" style="display:inline-block; background:#a244d0; color:#ffffff; font-weight:700; font-size:14px; text-decoration:none; padding:12px 22px; border-radius:100px;">
+          See our recent work →
+        </a>
+      </p>
       <p style="font-size: 14px; color: #6b6275;">
-        In the meantime, feel free to reply directly to this email if there&apos;s anything else you&apos;d like to add.
+        Feel free to reply directly to this email if there&apos;s anything else you&apos;d like to add.
       </p>
       <p style="font-size: 14px; margin-top: 32px;">— The Insights Mafia team</p>
     </div>
   `;
 
-  const text = `Thanks, ${data.name} — we've got your message.\n\nWe've received your inquiry and someone from our team will get back to you within one business day.\n\nYour message:\n${data.message}\n\n— The Insights Mafia team`;
+  const text = `Thanks, ${data.name} — we've got your message.\n\nOur team will connect with you within one business day.\n\nYour message:\n${data.message}\n\nIn the meantime, take a look at some of our recent work: https://www.insightsmafia.com/work\n\n— The Insights Mafia team`;
 
   return { html, text };
 }
