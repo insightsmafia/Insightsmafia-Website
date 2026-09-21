@@ -16,11 +16,16 @@ export default function CategoryCaseStudyBrowser({ projects, instagramUrl }: { p
   const active = projects[index];
   const hasMultiple = projects.length > 1;
 
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
   function prevClient() {
     setIndex((i) => (i - 1 + projects.length) % projects.length);
+    scrollToTop();
   }
   function nextClient() {
     setIndex((i) => (i + 1) % projects.length);
+    scrollToTop();
   }
 
   return (

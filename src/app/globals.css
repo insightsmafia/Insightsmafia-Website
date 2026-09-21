@@ -951,6 +951,8 @@ h1, h2, h3 {
 .reel-frame-horizontal {
   position: relative;
   width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
   aspect-ratio: 16 / 9;
   border-radius: 16px;
   overflow: hidden;
@@ -987,10 +989,16 @@ h1, h2, h3 {
   right: 8px;
 }
 
-.reel-mute-btn {
+.reel-frame-controls {
   position: absolute;
   bottom: 10px;
   right: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.reel-frame-btn {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -1001,7 +1009,6 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 2;
 }
 
 .reel-dots {
@@ -1033,16 +1040,13 @@ h1, h2, h3 {
 }
 
 .reel-showcase-client {
-  font-size: 24px;
+  font-size: clamp(24px, 3vw, 30px);
   font-weight: 800;
-  margin: 0 0 4px;
+  margin: 0 0 8px;
 }
 
-.reel-showcase-year {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--muted);
-  margin: 0 0 16px;
+.reel-showcase-summary-wrap {
+  margin: 0;
 }
 
 .reel-showcase-summary {
@@ -1050,6 +1054,31 @@ h1, h2, h3 {
   line-height: 1.6;
   color: var(--muted);
   margin: 0;
+}
+
+.reel-summary-toggle {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--purple);
+  cursor: pointer;
+}
+
+@media (max-width: 860px) {
+  .reel-summary-toggle {
+    display: inline-block;
+  }
+
+  .reel-showcase-summary-wrap:not(.expanded) .reel-showcase-summary {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }
 
 /* ---- client-nav: steps between case studies within a category, in place
@@ -1105,5 +1134,23 @@ h1, h2, h3 {
 
   .reel-showcase-info {
     padding: 24px 24px 32px;
+  }
+
+  .reel-showcase.horizontal .reel-showcase-media {
+    padding: 20px 14px 16px;
+  }
+
+  .reel-showcase.horizontal .reel-frame-horizontal {
+    max-width: 100%;
+  }
+
+  .client-nav-btn {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    overflow-wrap: normal;
+    word-break: normal;
+    line-height: 1.3;
+    max-width: 46%;
   }
 }
