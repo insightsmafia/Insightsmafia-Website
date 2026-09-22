@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import ResourceEditor, { Field } from '@/components/admin/ResourceEditor';
 import { INDUSTRIES } from '@/lib/industries';
+import { normalizeVideos, normalizeImages } from '@/lib/normalizeVideos';
 
 type Category = { id: string; slug: string; label: string };
 
@@ -63,7 +64,15 @@ export default function AdminWorkCategoryPage() {
       reorderable
       fields={fields}
       defaults={{ categoryId: category.id }}
-      filter={(p) => p.categoryId === category.id}
+      // Show a case study in this category's admin list whenever any of
+      // its videos/images is tagged for it - not just the category it was
+      // originally created under - so its description and video/image
+      // order can be managed from every admin page it publicly shows on.
+      filter={(p) => {
+        const videos = normalizeVideos(p.videos);
+        const images = normalizeImages(p.gallery);
+        return videos.some((v) => v.categories.includes(category.id)) || images.some((img) => img.categories.includes(category.id));
+      }}
       getLabel={(p) => p.client || 'Untitled client'}
       getSubtitle={(p) => p.summary || ''}
     />

@@ -38,10 +38,12 @@ function GripIcon() {
 }
 
 // Per-video/image "which work categories does this show under" control.
-// The category the item was added from (its "home") is always checked and
-// can't be unchecked - it's guaranteed to show there - with the rest as
-// optional "also show on" checkboxes for a single piece of content to
-// appear on more than one category page.
+// A brand-new row starts pre-checked for whichever admin page it was added
+// from (see the "+ Add" buttons below), but every checkbox stays fully
+// editable after that - a case study can now be opened for editing from
+// any category page it appears on, so treating one category as
+// permanently locked no longer makes sense (whichever page you happened
+// to open it from isn't necessarily special to that specific video).
 function CategoryShowOn({
   categories,
   homeCategoryId,
@@ -57,19 +59,17 @@ function CategoryShowOn({
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, border: '2px solid var(--ink)', borderRadius: 10, padding: '10px 12px' }}>
       <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.3 }}>Show on</span>
       {options.map((c) => {
-        const isHome = c.value === homeCategoryId;
-        const checked = isHome || categories.includes(c.value);
+        const checked = categories.includes(c.value);
         return (
-          <label key={c.value} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, cursor: isHome ? 'default' : 'pointer' }}>
+          <label key={c.value} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, cursor: 'pointer' }}>
             <input
               type="checkbox"
               checked={checked}
-              disabled={isHome}
               onChange={() => onChange(checked ? categories.filter((v) => v !== c.value) : [...categories, c.value])}
               style={{ width: 16, height: 16 }}
             />
             {c.label}
-            {isHome && <span style={{ color: 'var(--muted)', fontSize: 12 }}>(added here)</span>}
+            {c.value === homeCategoryId && <span style={{ color: 'var(--muted)', fontSize: 12 }}>(this page)</span>}
           </label>
         );
       })}
@@ -134,22 +134,13 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
     setEditing({ ...blank, ...defaults });
   }
 
-  // The home category (wherever this form was opened from) always shows
-  // as checked in CategoryShowOn - make sure that's backed by real data on
-  // every row, not just a visual illusion, even for rows the admin never
-  // touches this edit.
-  function withHomeCategory<T extends { categories: string[] }>(items: T[]): T[] {
-    if (!defaults.categoryId) return items;
-    return items.map((v) => (v.categories.includes(defaults.categoryId) ? v : { ...v, categories: [...v.categories, defaults.categoryId] }));
-  }
-
   function openEdit(item: Item) {
     const draft = { ...item };
     for (const f of fields) {
       if (f.type === 'videolist') {
-        draft[f.name] = withHomeCategory(normalizeVideos(item[f.name]));
+        draft[f.name] = normalizeVideos(item[f.name]);
       } else if (f.type === 'imagelist') {
-        draft[f.name] = withHomeCategory(normalizeImages(item[f.name]));
+        draft[f.name] = normalizeImages(item[f.name]);
       }
     }
     setEditing(draft);
@@ -395,9 +386,8 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                             homeCategoryId={defaults.categoryId}
                             options={workCategoryOptions}
                             onChange={(nextCategories) => {
-                              const withHome = defaults.categoryId && !nextCategories.includes(defaults.categoryId) ? [...nextCategories, defaults.categoryId] : nextCategories;
                               const next = [...(editing[f.name] as ImageItem[])];
-                              next[idx] = { ...next[idx], categories: withHome };
+                              next[idx] = { ...next[idx], categories: nextCategories };
                               setEditing({ ...editing, [f.name]: next });
                             }}
                           />
@@ -474,9 +464,8 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                             homeCategoryId={defaults.categoryId}
                             options={workCategoryOptions}
                             onChange={(nextCategories) => {
-                              const withHome = defaults.categoryId && !nextCategories.includes(defaults.categoryId) ? [...nextCategories, defaults.categoryId] : nextCategories;
                               const next = [...(editing[f.name] as VideoItem[])];
-                              next[idx] = { ...next[idx], categories: withHome };
+                              next[idx] = { ...next[idx], categories: nextCategories };
                               setEditing({ ...editing, [f.name]: next });
                             }}
                           />
