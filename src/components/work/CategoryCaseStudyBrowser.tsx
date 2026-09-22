@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import ReelShowcase from './ReelShowcase';
 import { INDUSTRIES } from '@/lib/industries';
-import { VideoItem } from '@/lib/normalizeVideos';
+import { PlayableVideo } from '@/lib/normalizeVideos';
 
 export type CaseStudy = {
   id: string;
   client: string | null;
   summary: string | null;
-  videos: VideoItem[];
+  videos: PlayableVideo[];
   images: string[];
   videoOrientation: 'vertical' | 'horizontal';
   industry: string | null;

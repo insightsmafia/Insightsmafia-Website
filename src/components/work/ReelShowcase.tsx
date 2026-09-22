@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/ui/Button';
 import { getVideoEmbed } from '@/lib/videoEmbed';
-import { VideoItem } from '@/lib/normalizeVideos';
+import { PlayableVideo } from '@/lib/normalizeVideos';
 import { proxyImage } from '@/lib/imageProxy';
 import { loadYouTubeIframeApi } from '@/lib/youtubeIframeApi';
 import { loadVimeoPlayerApi } from '@/lib/vimeoPlayerApi';
@@ -248,7 +248,7 @@ function VideoFrame({
 type Props = {
   client: string | null;
   summary: string | null;
-  videos: VideoItem[];
+  videos: PlayableVideo[];
   images: string[];
   orientation: 'vertical' | 'horizontal';
   instagramUrl?: string | null;

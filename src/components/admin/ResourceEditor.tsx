@@ -37,6 +37,46 @@ function GripIcon() {
   );
 }
 
+// Per-video/image "which work categories does this show under" control.
+// The category the item was added from (its "home") is always checked and
+// can't be unchecked - it's guaranteed to show there - with the rest as
+// optional "also show on" checkboxes for a single piece of content to
+// appear on more than one category page.
+function CategoryShowOn({
+  categories,
+  homeCategoryId,
+  options,
+  onChange,
+}: {
+  categories: string[];
+  homeCategoryId?: string;
+  options: { value: string; label: string }[];
+  onChange: (next: string[]) => void;
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, border: '2px solid var(--ink)', borderRadius: 10, padding: '10px 12px' }}>
+      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.3 }}>Show on</span>
+      {options.map((c) => {
+        const isHome = c.value === homeCategoryId;
+        const checked = isHome || categories.includes(c.value);
+        return (
+          <label key={c.value} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, cursor: isHome ? 'default' : 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={checked}
+              disabled={isHome}
+              onChange={() => onChange(checked ? categories.filter((v) => v !== c.value) : [...categories, c.value])}
+              style={{ width: 16, height: 16 }}
+            />
+            {c.label}
+            {isHome && <span style={{ color: 'var(--muted)', fontSize: 12 }}>(added here)</span>}
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
 function authHeaders() {
   const token = localStorage.getItem('admin_token');
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
@@ -94,13 +134,22 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
     setEditing({ ...blank, ...defaults });
   }
 
+  // The home category (wherever this form was opened from) always shows
+  // as checked in CategoryShowOn - make sure that's backed by real data on
+  // every row, not just a visual illusion, even for rows the admin never
+  // touches this edit.
+  function withHomeCategory<T extends { categories: string[] }>(items: T[]): T[] {
+    if (!defaults.categoryId) return items;
+    return items.map((v) => (v.categories.includes(defaults.categoryId) ? v : { ...v, categories: [...v.categories, defaults.categoryId] }));
+  }
+
   function openEdit(item: Item) {
     const draft = { ...item };
     for (const f of fields) {
       if (f.type === 'videolist') {
-        draft[f.name] = normalizeVideos(item[f.name]);
+        draft[f.name] = withHomeCategory(normalizeVideos(item[f.name]));
       } else if (f.type === 'imagelist') {
-        draft[f.name] = normalizeImages(item[f.name]);
+        draft[f.name] = withHomeCategory(normalizeImages(item[f.name]));
       }
     }
     setEditing(draft);
@@ -341,27 +390,24 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                               Remove
                             </button>
                           </div>
-                          <select
-                            value={item.category ?? ''}
-                            onChange={(e) => {
+                          <CategoryShowOn
+                            categories={item.categories ?? []}
+                            homeCategoryId={defaults.categoryId}
+                            options={workCategoryOptions}
+                            onChange={(nextCategories) => {
+                              const withHome = defaults.categoryId && !nextCategories.includes(defaults.categoryId) ? [...nextCategories, defaults.categoryId] : nextCategories;
                               const next = [...(editing[f.name] as ImageItem[])];
-                              next[idx] = { ...next[idx], category: e.target.value };
+                              next[idx] = { ...next[idx], categories: withHome };
                               setEditing({ ...editing, [f.name]: next });
                             }}
-                            style={{ ...fieldStyle, width: '100%', fontSize: 13 }}
-                          >
-                            <option value="">— Not shown on any work-category page yet —</option>
-                            {workCategoryOptions.map((c) => (
-                              <option key={c.value} value={c.value}>Show on: {c.label}</option>
-                            ))}
-                          </select>
+                          />
                         </div>
                       ))}
                       <button
                         type="button"
                         className="btn"
                         style={{ padding: '8px 14px', fontSize: 13, alignSelf: 'flex-start' }}
-                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as ImageItem[]) ?? []), { url: '', category: defaults.categoryId || '' }] })}
+                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as ImageItem[]) ?? []), { url: '', categories: defaults.categoryId ? [defaults.categoryId] : [] }] })}
                       >
                         + Add image
                       </button>
@@ -423,27 +469,24 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                             placeholder="Views to display (e.g. 1.2M) — optional"
                             style={{ ...fieldStyle, width: '100%' }}
                           />
-                          <select
-                            value={item.category ?? ''}
-                            onChange={(e) => {
+                          <CategoryShowOn
+                            categories={item.categories ?? []}
+                            homeCategoryId={defaults.categoryId}
+                            options={workCategoryOptions}
+                            onChange={(nextCategories) => {
+                              const withHome = defaults.categoryId && !nextCategories.includes(defaults.categoryId) ? [...nextCategories, defaults.categoryId] : nextCategories;
                               const next = [...(editing[f.name] as VideoItem[])];
-                              next[idx] = { ...next[idx], category: e.target.value };
+                              next[idx] = { ...next[idx], categories: withHome };
                               setEditing({ ...editing, [f.name]: next });
                             }}
-                            style={{ ...fieldStyle, width: '100%', fontSize: 13 }}
-                          >
-                            <option value="">— Not shown on any work-category page yet —</option>
-                            {workCategoryOptions.map((c) => (
-                              <option key={c.value} value={c.value}>Show on: {c.label}</option>
-                            ))}
-                          </select>
+                          />
                         </div>
                       ))}
                       <button
                         type="button"
                         className="btn"
                         style={{ padding: '8px 14px', fontSize: 13, alignSelf: 'flex-start' }}
-                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as VideoItem[]) ?? []), { url: '', views: '', category: defaults.categoryId || '' }] })}
+                        onClick={() => setEditing({ ...editing, [f.name]: [...((editing[f.name] as VideoItem[]) ?? []), { url: '', views: '', categories: defaults.categoryId ? [defaults.categoryId] : [] }] })}
                       >
                         + Add video link
                       </button>

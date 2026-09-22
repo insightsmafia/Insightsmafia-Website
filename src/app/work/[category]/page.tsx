@@ -24,13 +24,14 @@ export default async function WorkCategoryPage({ params }: { params: { category:
   if (!category) notFound();
 
   // Which category page a case study appears on is decided entirely by
-  // its individual videos/images: each one is tagged with the single work
-  // category it should show under (set in the admin form). A case study
-  // shows here only if at least one of its videos or images is tagged for
-  // this category - there's no separate case-study-level category setting
-  // to keep in sync with those tags, which was the source of an earlier
-  // bug (a video tagged for a category wouldn't show unless the case
-  // study was *also* separately checked into that category).
+  // its individual videos/images: each one carries the set of work
+  // categories it should show under (set in the admin form - a video can
+  // show on more than one). A case study shows here only if at least one
+  // of its videos or images is tagged for this category - there's no
+  // separate case-study-level category setting to keep in sync with those
+  // tags, which was the source of an earlier bug (a video tagged for a
+  // category wouldn't show unless the case study was *also* separately
+  // checked into that category).
   const [allPublished, settings] = await Promise.all([
     prisma.project.findMany({
       where: { published: true },
@@ -41,8 +42,8 @@ export default async function WorkCategoryPage({ params }: { params: { category:
 
   const projects = allPublished
     .map((p) => {
-      const videos = normalizeVideos(p.videos).filter((v) => v.category === category.id);
-      const images = normalizeImages(p.gallery).filter((img) => img.category === category.id);
+      const videos = normalizeVideos(p.videos).filter((v) => v.categories.includes(category.id));
+      const images = normalizeImages(p.gallery).filter((img) => img.categories.includes(category.id));
       return {
         id: p.id,
         client: p.client,
