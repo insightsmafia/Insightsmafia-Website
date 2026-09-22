@@ -77,6 +77,18 @@ function CategoryShowOn({
   );
 }
 
+// Editing a case study from a specific category's admin page should only
+// show (and let you reorder) the videos/images actually tagged for that
+// category - not the full list shared across every category it's under.
+// Keeps each entry's original index in the full array, since drag-reorder
+// still needs to write back into that same array without disturbing the
+// positions of items that aren't part of this filtered view.
+function filteredWithIndices<T extends { categories: string[] }>(fullArr: T[], categoryId?: string): { item: T; originalIndex: number }[] {
+  const entries = fullArr.map((item, originalIndex) => ({ item, originalIndex }));
+  if (!categoryId) return entries;
+  return entries.filter(({ item }) => item.categories.includes(categoryId));
+}
+
 function authHeaders() {
   const token = localStorage.getItem('admin_token');
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
@@ -194,16 +206,24 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
     listDragFrom.current = index;
   }
 
-  function handleListDragOver(e: React.DragEvent, fieldName: string, index: number, arr: any[]) {
+  // `displayArr`/`originalIndices` describe the (possibly filtered) subset
+  // being dragged; the reordered subset is written back into `fullArr` at
+  // those same original slots, so items outside the filter stay exactly
+  // where they were.
+  function handleListDragOver(e: React.DragEvent, fieldName: string, displayIndex: number, displayArr: any[], fullArr: any[], originalIndices: number[]) {
     e.preventDefault();
-    setListDragOver({ field: fieldName, index });
+    setListDragOver({ field: fieldName, index: displayIndex });
     const from = listDragFrom.current;
-    if (from === null || from === index || !editing) return;
-    const next = [...arr];
-    const [moved] = next.splice(from, 1);
-    next.splice(index, 0, moved);
-    setEditing({ ...editing, [fieldName]: next });
-    listDragFrom.current = index;
+    if (from === null || from === displayIndex || !editing) return;
+    const nextDisplay = [...displayArr];
+    const [moved] = nextDisplay.splice(from, 1);
+    nextDisplay.splice(displayIndex, 0, moved);
+    const nextFull = [...fullArr];
+    originalIndices.forEach((origIdx, i) => {
+      nextFull[origIdx] = nextDisplay[i];
+    });
+    setEditing({ ...editing, [fieldName]: nextFull });
+    listDragFrom.current = displayIndex;
   }
 
   function handleListDragEnd() {
@@ -337,62 +357,73 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                     <ImageUploadField value={editing[f.name] ?? ''} onChange={(url) => setEditing({ ...editing, [f.name]: url })} />
                   ) : f.type === 'imagelist' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                      {((editing[f.name] as ImageItem[]) ?? []).map((item: ImageItem, idx: number) => (
-                        <div
-                          key={idx}
-                          draggable
-                          onDragStart={() => handleListDragStart(idx)}
-                          onDragOver={(e) => handleListDragOver(e, f.name, idx, editing[f.name] as ImageItem[])}
-                          onDrop={(e) => e.preventDefault()}
-                          onDragEnd={handleListDragEnd}
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 8,
-                            border: '2px solid var(--line)',
-                            borderRadius: 10,
-                            padding: 10,
-                            outline: listDragOver?.field === f.name && listDragOver.index === idx ? '2px dashed var(--purple)' : undefined,
-                          }}
-                        >
-                          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                            <span style={{ cursor: 'grab', display: 'flex', alignItems: 'center', paddingTop: 12, flexShrink: 0 }} title="Drag to reorder">
-                              <GripIcon />
-                            </span>
-                            <div style={{ flex: 1 }}>
-                              <ImageUploadField
-                                value={item.url}
-                                onChange={(newUrl) => {
-                                  const next = [...(editing[f.name] as ImageItem[])];
-                                  next[idx] = { ...next[idx], url: newUrl };
+                      {defaults.categoryId && (
+                        <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: 0 }}>
+                          Showing only images tagged for this category — the order set here only affects this category's page.
+                        </p>
+                      )}
+                      {(() => {
+                        const fullArr = (editing[f.name] as ImageItem[]) ?? [];
+                        const entries = filteredWithIndices(fullArr, defaults.categoryId);
+                        const displayArr = entries.map((entry) => entry.item);
+                        const originalIndices = entries.map((entry) => entry.originalIndex);
+                        return entries.map(({ item, originalIndex }, displayIdx) => (
+                          <div
+                            key={originalIndex}
+                            draggable
+                            onDragStart={() => handleListDragStart(displayIdx)}
+                            onDragOver={(e) => handleListDragOver(e, f.name, displayIdx, displayArr, fullArr, originalIndices)}
+                            onDrop={(e) => e.preventDefault()}
+                            onDragEnd={handleListDragEnd}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 8,
+                              border: '2px solid var(--line)',
+                              borderRadius: 10,
+                              padding: 10,
+                              outline: listDragOver?.field === f.name && listDragOver.index === displayIdx ? '2px dashed var(--purple)' : undefined,
+                            }}
+                          >
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                              <span style={{ cursor: 'grab', display: 'flex', alignItems: 'center', paddingTop: 12, flexShrink: 0 }} title="Drag to reorder">
+                                <GripIcon />
+                              </span>
+                              <div style={{ flex: 1 }}>
+                                <ImageUploadField
+                                  value={item.url}
+                                  onChange={(newUrl) => {
+                                    const next = [...fullArr];
+                                    next[originalIndex] = { ...next[originalIndex], url: newUrl };
+                                    setEditing({ ...editing, [f.name]: next });
+                                  }}
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                className="btn"
+                                style={{ padding: '8px 10px', fontSize: 12, color: 'var(--coral)', flexShrink: 0 }}
+                                onClick={() => {
+                                  const next = fullArr.filter((_, i) => i !== originalIndex);
                                   setEditing({ ...editing, [f.name]: next });
                                 }}
-                              />
+                              >
+                                Remove
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              className="btn"
-                              style={{ padding: '8px 10px', fontSize: 12, color: 'var(--coral)', flexShrink: 0 }}
-                              onClick={() => {
-                                const next = (editing[f.name] as ImageItem[]).filter((_, i) => i !== idx);
+                            <CategoryShowOn
+                              categories={item.categories ?? []}
+                              homeCategoryId={defaults.categoryId}
+                              options={workCategoryOptions}
+                              onChange={(nextCategories) => {
+                                const next = [...fullArr];
+                                next[originalIndex] = { ...next[originalIndex], categories: nextCategories };
                                 setEditing({ ...editing, [f.name]: next });
                               }}
-                            >
-                              Remove
-                            </button>
+                            />
                           </div>
-                          <CategoryShowOn
-                            categories={item.categories ?? []}
-                            homeCategoryId={defaults.categoryId}
-                            options={workCategoryOptions}
-                            onChange={(nextCategories) => {
-                              const next = [...(editing[f.name] as ImageItem[])];
-                              next[idx] = { ...next[idx], categories: nextCategories };
-                              setEditing({ ...editing, [f.name]: next });
-                            }}
-                          />
-                        </div>
-                      ))}
+                        ));
+                      })()}
                       <button
                         type="button"
                         className="btn"
@@ -404,73 +435,84 @@ export default function ResourceEditor({ resource, title, fields, defaults = {},
                     </div>
                   ) : f.type === 'videolist' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                      {((editing[f.name] as VideoItem[]) ?? []).map((item: VideoItem, idx: number) => (
-                        <div
-                          key={idx}
-                          draggable
-                          onDragStart={() => handleListDragStart(idx)}
-                          onDragOver={(e) => handleListDragOver(e, f.name, idx, editing[f.name] as VideoItem[])}
-                          onDrop={(e) => e.preventDefault()}
-                          onDragEnd={handleListDragEnd}
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 8,
-                            border: '2px solid var(--line)',
-                            borderRadius: 10,
-                            padding: 10,
-                            outline: listDragOver?.field === f.name && listDragOver.index === idx ? '2px dashed var(--purple)' : undefined,
-                          }}
-                        >
-                          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                            <span style={{ cursor: 'grab', display: 'flex', alignItems: 'center', paddingTop: 12, flexShrink: 0 }} title="Drag to reorder">
-                              <GripIcon />
-                            </span>
-                            <div style={{ flex: 1 }}>
-                              <VideoUploadField
-                                value={item.url}
-                                onChange={(newUrl) => {
-                                  const next = [...(editing[f.name] as VideoItem[])];
-                                  next[idx] = { ...next[idx], url: newUrl };
+                      {defaults.categoryId && (
+                        <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: 0 }}>
+                          Showing only videos tagged for this category — the order set here only affects this category's page.
+                        </p>
+                      )}
+                      {(() => {
+                        const fullArr = (editing[f.name] as VideoItem[]) ?? [];
+                        const entries = filteredWithIndices(fullArr, defaults.categoryId);
+                        const displayArr = entries.map((entry) => entry.item);
+                        const originalIndices = entries.map((entry) => entry.originalIndex);
+                        return entries.map(({ item, originalIndex }, displayIdx) => (
+                          <div
+                            key={originalIndex}
+                            draggable
+                            onDragStart={() => handleListDragStart(displayIdx)}
+                            onDragOver={(e) => handleListDragOver(e, f.name, displayIdx, displayArr, fullArr, originalIndices)}
+                            onDrop={(e) => e.preventDefault()}
+                            onDragEnd={handleListDragEnd}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 8,
+                              border: '2px solid var(--line)',
+                              borderRadius: 10,
+                              padding: 10,
+                              outline: listDragOver?.field === f.name && listDragOver.index === displayIdx ? '2px dashed var(--purple)' : undefined,
+                            }}
+                          >
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                              <span style={{ cursor: 'grab', display: 'flex', alignItems: 'center', paddingTop: 12, flexShrink: 0 }} title="Drag to reorder">
+                                <GripIcon />
+                              </span>
+                              <div style={{ flex: 1 }}>
+                                <VideoUploadField
+                                  value={item.url}
+                                  onChange={(newUrl) => {
+                                    const next = [...fullArr];
+                                    next[originalIndex] = { ...next[originalIndex], url: newUrl };
+                                    setEditing({ ...editing, [f.name]: next });
+                                  }}
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                className="btn"
+                                style={{ padding: '8px 10px', fontSize: 12, color: 'var(--coral)', flexShrink: 0 }}
+                                onClick={() => {
+                                  const next = fullArr.filter((_, i) => i !== originalIndex);
                                   setEditing({ ...editing, [f.name]: next });
                                 }}
-                              />
+                              >
+                                Remove
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              className="btn"
-                              style={{ padding: '8px 10px', fontSize: 12, color: 'var(--coral)', flexShrink: 0 }}
-                              onClick={() => {
-                                const next = (editing[f.name] as VideoItem[]).filter((_, i) => i !== idx);
+                            <input
+                              type="text"
+                              value={item.views ?? ''}
+                              onChange={(e) => {
+                                const next = [...fullArr];
+                                next[originalIndex] = { ...next[originalIndex], views: e.target.value };
                                 setEditing({ ...editing, [f.name]: next });
                               }}
-                            >
-                              Remove
-                            </button>
+                              placeholder="Views to display (e.g. 1.2M) — optional"
+                              style={{ ...fieldStyle, width: '100%' }}
+                            />
+                            <CategoryShowOn
+                              categories={item.categories ?? []}
+                              homeCategoryId={defaults.categoryId}
+                              options={workCategoryOptions}
+                              onChange={(nextCategories) => {
+                                const next = [...fullArr];
+                                next[originalIndex] = { ...next[originalIndex], categories: nextCategories };
+                                setEditing({ ...editing, [f.name]: next });
+                              }}
+                            />
                           </div>
-                          <input
-                            type="text"
-                            value={item.views ?? ''}
-                            onChange={(e) => {
-                              const next = [...(editing[f.name] as VideoItem[])];
-                              next[idx] = { ...next[idx], views: e.target.value };
-                              setEditing({ ...editing, [f.name]: next });
-                            }}
-                            placeholder="Views to display (e.g. 1.2M) — optional"
-                            style={{ ...fieldStyle, width: '100%' }}
-                          />
-                          <CategoryShowOn
-                            categories={item.categories ?? []}
-                            homeCategoryId={defaults.categoryId}
-                            options={workCategoryOptions}
-                            onChange={(nextCategories) => {
-                              const next = [...(editing[f.name] as VideoItem[])];
-                              next[idx] = { ...next[idx], categories: nextCategories };
-                              setEditing({ ...editing, [f.name]: next });
-                            }}
-                          />
-                        </div>
-                      ))}
+                        ));
+                      })()}
                       <button
                         type="button"
                         className="btn"
